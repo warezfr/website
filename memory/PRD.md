@@ -24,6 +24,12 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 
 ## Custom theme — what's been implemented (April 2026)
 
+### Iterations
+1. v1 — Minimalist editorial theme (cream/teal) — rejected by user (too minimal)
+2. v2 — SmartMag-style dense news magazine homepage + branded Base
+3. v3 — **Article detail page rewritten in SmartMag style** (current) — fixes the
+   misaligned left/right columns reported by the user and adds editorial upgrades
+
 ### Files created / modified
 - `templates/dynatrace-blog/package.json` — `@dynatrace-club/theme-blog`
 - `templates/dynatrace-blog/astro.config.mjs` — IBM Plex Sans + Source Serif 4 + JetBrains Mono
@@ -33,6 +39,7 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 - `templates/dynatrace-blog/src/pages/index.astro` — magazine homepage (7 sections)
 - `templates/dynatrace-blog/src/components/CategoryBadge.astro` — colored category pill
 - `templates/dynatrace-blog/src/components/MagCard.astro` — card primitive (hero/stack/row/minimal)
+- `templates/dynatrace-blog/src/pages/posts/[slug].astro` — **fully rewritten** SmartMag article page (breadcrumbs, category badge, drop-cap, share rail, reading progress bar, new 2-col layout, redesigned sidebar + related posts)
 - `templates/dynatrace-blog/seed/seed.json` — full custom seed (categories + 7 posts + pages + menus)
 
 ### Visual identity
