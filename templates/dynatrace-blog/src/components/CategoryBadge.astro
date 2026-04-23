@@ -1,0 +1,36 @@
+---
+/*
+  CategoryBadge — uppercase colored label for a post's primary category.
+  Pass either a single category object { slug, label } or an array; the
+  first is displayed.
+*/
+interface Cat {
+	slug: string;
+	label: string;
+}
+
+interface Props {
+	category?: Cat | Cat[] | null;
+	fallback?: string;
+	class?: string;
+}
+
+const { category, fallback, class: className } = Astro.props;
+
+const cat = Array.isArray(category) ? category[0] : category;
+const label = cat?.label ?? fallback;
+const slug = cat?.slug ?? "";
+const href = cat ? `/category/${cat.slug}` : null;
+---
+
+{label && (
+	href ? (
+		<a href={href} class:list={["cat-badge", className]} data-cat={slug}>
+			{label}
+		</a>
+	) : (
+		<span class:list={["cat-badge", className]} data-cat={slug}>
+			{label}
+		</span>
+	)
+)}

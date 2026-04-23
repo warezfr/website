@@ -1,0 +1,707 @@
+---
+import { getEmDashCollection, getEntryTerms, getSiteSettings } from "emdash";
+import Base from "../layouts/Base.astro";
+import MagCard from "../components/MagCard.astro";
+import CategoryBadge from "../components/CategoryBadge.astro";
+import { getReadingTime } from "../utils/reading-time";
+import { resolveBlogSiteIdentity } from "../utils/site-identity";
+
+const { entries: posts, cacheHint } = await getEmDashCollection("posts");
+const { siteTitle, siteTagline } = resolveBlogSiteIdentity(await getSiteSettings());
+
+Astro.cache.set(cacheHint);
+
+const sortedPosts = posts.toSorted((a, b) => {
+	const dateA = a.data.publishedAt?.getTime() ?? 0;
+	const dateB = b.data.publishedAt?.getTime() ?? 0;
+	return dateB - dateA;
+});
+
+// Hydrate each post with categories + tags
+const enriched = await Promise.all(
+	sortedPosts.map(async (post) => {
+		const cats = await getEntryTerms("posts", post.data.id, "category");
+		const tags = await getEntryTerms("posts", post.data.id, "tag");
+		return {
+			post,
+			href: `/posts/${post.id}`,
+			categories: cats.map((c) => ({ slug: c.slug, label: c.label })),
+			tags: tags.map((t) => ({ slug: t.slug, label: t.label })),
+			bylines: post.data.bylines ?? [],
+			readingTime: getReadingTime(post.data.content),
+		};
+	})
+);
+
+// Helper to filter by category slug
+const byCategory = (slug: string) =>
+	enriched.filter((e) => e.categories.some((c) => c.slug === slug));
+
+// ----- Section slices -----
+const heroStories = enriched.filter((e) => e.post.data.featured_image).slice(0, 3);
+const heroIds = new Set(heroStories.map((e) => e.post.data.id));
+
+const editorsPicks = enriched
+	.filter((e) => !heroIds.has(e.post.data.id))
+	.slice(0, 4);
+
+const observabilityPosts = byCategory("observability").slice(0, 5);
+const dynatracePosts = byCategory("dynatrace").slice(0, 5);
+const aiPosts = byCategory("ai").slice(0, 5);
+const srePosts = byCategory("sre").slice(0, 5);
+
+const latestPosts = enriched.slice(0, 6);
+---
+
+<Base title={siteTitle} description={siteTagline}>
+	{posts.length === 0 ? (
+		<section class="empty-state">
+			<h2>No posts yet</h2>
+			<p>Create your first post in the admin panel.</p>
+			<a href="/_emdash/admin/content/posts/new" class="btn">Create a post</a>
+		</section>
+	) : (
+		<div class="mag-home">
+			{/* ============ 3-COLUMN HERO ============ */}
+			{heroStories.length > 0 && (
+				<section class="hero-grid" data-testid="home-hero-grid">
+					{heroStories.map((s) => (
+						<MagCard
+							title={s.post.data.title ?? "Untitled"}
+							excerpt={s.post.data.excerpt}
+							featuredImage={s.post.data.featured_image}
+							href={s.href}
+							date={s.post.data.publishedAt ?? undefined}
+							readingTime={s.readingTime}
+							categories={s.categories}
+							bylines={s.bylines}
+							variant="hero"
+						/>
+					))}
+				</section>
+			)}
+
+			{/* ============ EDITORS' CHOICE STRIP ============ */}
+			{editorsPicks.length > 0 && (
+				<section class="editors-strip" data-testid="editors-choice">
+					<div class="editors-strip__header">
+						<h4 class="editors-strip__title">
+							<span class="editors-strip__accent" aria-hidden="true"></span>
+							Editors' Choice
+						</h4>
+					</div>
+					<div class="editors-strip__grid">
+						{editorsPicks.map((p) => (
+							<MagCard
+								title={p.post.data.title ?? "Untitled"}
+								featuredImage={p.post.data.featured_image}
+								href={p.href}
+								date={p.post.data.publishedAt ?? undefined}
+								readingTime={p.readingTime}
+								categories={p.categories}
+								variant="stack"
+								titleSize="sm"
+							/>
+						))}
+					</div>
+				</section>
+			)}
+
+			{/* ============ OBSERVABILITY SECTION (featured + list) ============ */}
+			{observabilityPosts.length > 0 && (
+				<section class="mag-block" data-testid="section-observability">
+					<header class="mag-section-title" data-cat="observability">
+						<h2><a href="/category/observability">Observability</a></h2>
+						<a href="/category/observability">See more →</a>
+					</header>
+					<div class="split-grid">
+						<div class="split-grid__feature">
+							<MagCard
+								title={observabilityPosts[0].post.data.title ?? "Untitled"}
+								excerpt={observabilityPosts[0].post.data.excerpt}
+								featuredImage={observabilityPosts[0].post.data.featured_image}
+								href={observabilityPosts[0].href}
+								date={observabilityPosts[0].post.data.publishedAt ?? undefined}
+								readingTime={observabilityPosts[0].readingTime}
+								categories={observabilityPosts[0].categories}
+								bylines={observabilityPosts[0].bylines}
+								variant="stack"
+								titleSize="lg"
+								showExcerpt
+							/>
+						</div>
+						<div class="split-grid__list">
+							{observabilityPosts.slice(1, 4).map((p) => (
+								<MagCard
+									title={p.post.data.title ?? "Untitled"}
+									featuredImage={p.post.data.featured_image}
+									href={p.href}
+									date={p.post.data.publishedAt ?? undefined}
+									readingTime={p.readingTime}
+									categories={p.categories}
+									variant="row"
+								/>
+							))}
+						</div>
+					</div>
+				</section>
+			)}
+
+			{/* ============ AD / SPONSORED BAND ============ */}
+			<aside class="sponsor-band" data-testid="sponsor-band" aria-label="Sponsored">
+				<span class="sponsor-band__tag">Sponsored · Observability tooling</span>
+				<p class="sponsor-band__text">
+					<strong>Ship less noise, catch more incidents.</strong>
+					&nbsp;Our curated Dynatrace-ready OTel starter pack is free for
+					Dynatrace Club readers.
+				</p>
+				<a href="#" class="sponsor-band__cta">Get the pack →</a>
+			</aside>
+
+			{/* ============ DYNATRACE + AI 2-COLUMN ============ */}
+			<div class="duo-grid">
+				{dynatracePosts.length > 0 && (
+					<section class="mag-block" data-testid="section-dynatrace">
+						<header class="mag-section-title" data-cat="dynatrace">
+							<h2><a href="/category/dynatrace">Dynatrace Deep Dives</a></h2>
+							<a href="/category/dynatrace">All →</a>
+						</header>
+						<div class="list-column">
+							{dynatracePosts.slice(0, 4).map((p, i) =>
+								i === 0 ? (
+									<MagCard
+										title={p.post.data.title ?? "Untitled"}
+										excerpt={p.post.data.excerpt}
+										featuredImage={p.post.data.featured_image}
+										href={p.href}
+										date={p.post.data.publishedAt ?? undefined}
+										readingTime={p.readingTime}
+										categories={p.categories}
+										bylines={p.bylines}
+										variant="stack"
+										titleSize="md"
+										showExcerpt
+									/>
+								) : (
+									<MagCard
+										title={p.post.data.title ?? "Untitled"}
+										featuredImage={p.post.data.featured_image}
+										href={p.href}
+										date={p.post.data.publishedAt ?? undefined}
+										readingTime={p.readingTime}
+										categories={p.categories}
+										variant="row"
+									/>
+								)
+							)}
+						</div>
+					</section>
+				)}
+
+				{aiPosts.length > 0 && (
+					<section class="mag-block" data-testid="section-ai">
+						<header class="mag-section-title" data-cat="ai">
+							<h2><a href="/category/ai">AI &amp; LLM Ops</a></h2>
+							<a href="/category/ai">All →</a>
+						</header>
+						<div class="list-column">
+							{aiPosts.slice(0, 4).map((p, i) =>
+								i === 0 ? (
+									<MagCard
+										title={p.post.data.title ?? "Untitled"}
+										excerpt={p.post.data.excerpt}
+										featuredImage={p.post.data.featured_image}
+										href={p.href}
+										date={p.post.data.publishedAt ?? undefined}
+										readingTime={p.readingTime}
+										categories={p.categories}
+										bylines={p.bylines}
+										variant="stack"
+										titleSize="md"
+										showExcerpt
+									/>
+								) : (
+									<MagCard
+										title={p.post.data.title ?? "Untitled"}
+										featuredImage={p.post.data.featured_image}
+										href={p.href}
+										date={p.post.data.publishedAt ?? undefined}
+										readingTime={p.readingTime}
+										categories={p.categories}
+										variant="row"
+									/>
+								)
+							)}
+						</div>
+					</section>
+				)}
+			</div>
+
+			{/* ============ SRE SECTION ============ */}
+			{srePosts.length > 0 && (
+				<section class="mag-block" data-testid="section-sre">
+					<header class="mag-section-title" data-cat="sre">
+						<h2><a href="/category/sre">SRE &amp; Reliability</a></h2>
+						<a href="/category/sre">All →</a>
+					</header>
+					<div class="trio-grid">
+						{srePosts.slice(0, 3).map((p) => (
+							<MagCard
+								title={p.post.data.title ?? "Untitled"}
+								excerpt={p.post.data.excerpt}
+								featuredImage={p.post.data.featured_image}
+								href={p.href}
+								date={p.post.data.publishedAt ?? undefined}
+								readingTime={p.readingTime}
+								categories={p.categories}
+								bylines={p.bylines}
+								variant="stack"
+								titleSize="md"
+								showExcerpt
+							/>
+						))}
+					</div>
+				</section>
+			)}
+
+			{/* ============ LATEST POSTS ============ */}
+			<section class="mag-block" data-testid="section-latest">
+				<header class="mag-section-title">
+					<h2><a href="/posts">Latest Posts</a></h2>
+					<a href="/posts">Browse archive →</a>
+				</header>
+				<div class="latest-grid">
+					{latestPosts.map((p) => (
+						<MagCard
+							title={p.post.data.title ?? "Untitled"}
+							excerpt={p.post.data.excerpt}
+							featuredImage={p.post.data.featured_image}
+							href={p.href}
+							date={p.post.data.publishedAt ?? undefined}
+							readingTime={p.readingTime}
+							categories={p.categories}
+							bylines={p.bylines}
+							variant="stack"
+							titleSize="sm"
+						/>
+					))}
+				</div>
+				<div class="load-more-wrap">
+					<a href="/posts" class="load-more-btn" data-testid="load-more-link">Load more</a>
+				</div>
+			</section>
+
+			{/* ============ NEWSLETTER CTA ============ */}
+			<section class="newsletter-cta" data-testid="newsletter-cta">
+				<div class="newsletter-cta__inner">
+					<span class="newsletter-cta__eyebrow">
+						<span class="pulse-dot" aria-hidden="true"></span>
+						The weekly signal
+					</span>
+					<h2 class="newsletter-cta__title">
+						One curated email a week on observability, Dynatrace &amp; AI.
+					</h2>
+					<p class="newsletter-cta__lede">
+						No vendor fluff. No recycled Twitter threads. Just the best writing
+						and tooling we found this week, read by 0-to-many engineers who run
+						the systems they write about.
+					</p>
+					<form class="newsletter-cta__form" method="post" action="#" data-testid="newsletter-form">
+						<input
+							type="email"
+							name="email"
+							required
+							placeholder="your@work.email"
+							class="newsletter-cta__input"
+							data-testid="newsletter-email"
+						/>
+						<button type="submit" class="newsletter-cta__btn" data-testid="newsletter-submit">
+							Subscribe
+						</button>
+					</form>
+					<p class="newsletter-cta__tos">
+						Unsubscribe anytime. We never share your email.
+					</p>
+				</div>
+			</section>
+		</div>
+	)}
+</Base>
+
+<style>
+	.mag-home {
+		max-width: var(--wide-width);
+		margin: 0 auto;
+		padding: 2rem 1.5rem 4rem;
+	}
+
+	/* ========== HERO GRID ========== */
+	.hero-grid {
+		display: grid;
+		grid-template-columns: 1.6fr 1fr 1fr;
+		gap: 1.5rem;
+		margin-bottom: 3rem;
+		padding-bottom: 3rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	.hero-grid :global(.mag-card:first-child .mag-card__image) {
+		aspect-ratio: 16 / 11;
+	}
+
+	.hero-grid :global(.mag-card:first-child .mag-card__title) {
+		font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+	}
+
+	/* ========== EDITORS' STRIP ========== */
+	.editors-strip {
+		padding: 2rem;
+		background: var(--color-bg-subtle);
+		border-radius: var(--radius-lg);
+		margin-bottom: 3rem;
+	}
+
+	.editors-strip__header {
+		margin-bottom: 1.25rem;
+	}
+
+	.editors-strip__title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--color-text);
+		margin: 0;
+	}
+
+	.editors-strip__accent {
+		display: inline-block;
+		width: 24px;
+		height: 2px;
+		background: var(--color-accent);
+	}
+
+	.editors-strip__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.5rem;
+	}
+
+	/* ========== MAG BLOCKS ========== */
+	.mag-block {
+		margin-bottom: 3rem;
+	}
+
+	.mag-section-title h2 a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.mag-section-title h2 a:hover { color: var(--color-accent); }
+
+	.split-grid {
+		display: grid;
+		grid-template-columns: 1.2fr 1fr;
+		gap: 2rem;
+	}
+
+	.split-grid__feature :global(.mag-card__image) {
+		aspect-ratio: 16 / 10;
+	}
+
+	.split-grid__list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		padding-top: 0.25rem;
+	}
+
+	.split-grid__list :global(.mag-card--row):not(:last-child) {
+		padding-bottom: 1.25rem;
+		border-bottom: 1px solid var(--color-border-subtle);
+	}
+
+	.duo-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 2.5rem;
+		margin-bottom: 3rem;
+	}
+
+	.list-column {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.list-column :global(.mag-card--row) {
+		padding-bottom: 1.25rem;
+		border-bottom: 1px solid var(--color-border-subtle);
+	}
+
+	.list-column :global(.mag-card--row):last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+	}
+
+	.trio-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1.75rem;
+	}
+
+	.latest-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.load-more-wrap {
+		display: flex;
+		justify-content: center;
+		margin-top: 2rem;
+	}
+
+	.load-more-btn {
+		display: inline-block;
+		padding: 0.8rem 2rem;
+		font-family: var(--font-ui);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--color-text);
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		text-decoration: none;
+		transition: all 180ms ease;
+	}
+
+	.load-more-btn:hover {
+		background: var(--color-text);
+		color: var(--color-bg);
+		border-color: var(--color-text);
+	}
+
+	/* ========== SPONSOR BAND ========== */
+	.sponsor-band {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem 1.5rem;
+		padding: 1.25rem 1.75rem;
+		background: var(--color-bg-subtle);
+		border-left: 4px solid var(--color-accent);
+		border-radius: var(--radius-lg);
+		margin-bottom: 3rem;
+	}
+
+	.sponsor-band__tag {
+		font-family: var(--font-ui);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--color-muted);
+	}
+
+	.sponsor-band__text {
+		flex: 1;
+		font-size: 0.9375rem;
+		line-height: 1.4;
+		color: var(--color-text-secondary);
+		margin: 0;
+	}
+
+	.sponsor-band__text strong {
+		color: var(--color-text);
+		font-weight: 700;
+	}
+
+	.sponsor-band__cta {
+		font-family: var(--font-ui);
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--color-accent);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.sponsor-band__cta:hover {
+		color: var(--color-accent-hover);
+	}
+
+	/* ========== NEWSLETTER CTA ========== */
+	.newsletter-cta {
+		margin: 4rem 0 1rem;
+		padding: 4rem 3rem;
+		background:
+			radial-gradient(
+				circle at 15% 10%,
+				color-mix(in srgb, var(--cat-dynatrace) 12%, transparent) 0,
+				transparent 40%
+			),
+			radial-gradient(
+				circle at 90% 90%,
+				color-mix(in srgb, var(--cat-ai) 14%, transparent) 0,
+				transparent 45%
+			),
+			var(--color-bg-subtle);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border-subtle);
+	}
+
+	.newsletter-cta__inner {
+		max-width: 620px;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	.newsletter-cta__eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-family: var(--font-ui);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+		margin-bottom: 1rem;
+	}
+
+	.pulse-dot {
+		width: 8px; height: 8px; border-radius: 50%;
+		background: var(--color-accent);
+		box-shadow: 0 0 0 0 var(--color-accent-ring);
+		animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+
+	@keyframes pulse-ring {
+		0%, 100% { box-shadow: 0 0 0 0 var(--color-accent-ring); }
+		50% { box-shadow: 0 0 0 8px transparent; }
+	}
+
+	.newsletter-cta__title {
+		font-family: var(--font-display);
+		font-weight: 500;
+		font-size: clamp(1.5rem, 3vw, 2.25rem);
+		line-height: 1.2;
+		letter-spacing: -0.02em;
+		margin-bottom: 1rem;
+		color: var(--color-text);
+	}
+
+	.newsletter-cta__lede {
+		font-size: 1rem;
+		line-height: 1.6;
+		color: var(--color-text-secondary);
+		margin-bottom: 2rem;
+	}
+
+	.newsletter-cta__form {
+		display: flex;
+		gap: 0.5rem;
+		max-width: 480px;
+		margin: 0 auto;
+	}
+
+	.newsletter-cta__input {
+		flex: 1;
+		padding: 0.85rem 1rem;
+		font-family: var(--font-ui);
+		font-size: 0.9375rem;
+		color: var(--color-text);
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		outline: none;
+		transition: border-color 150ms ease;
+	}
+
+	.newsletter-cta__input:focus {
+		border-color: var(--color-accent);
+		box-shadow: 0 0 0 3px var(--color-accent-ring);
+	}
+
+	.newsletter-cta__btn {
+		padding: 0.85rem 1.6rem;
+		font-family: var(--font-ui);
+		font-size: 0.875rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--color-on-accent);
+		background: var(--color-accent);
+		border: none;
+		border-radius: var(--radius);
+		cursor: pointer;
+		transition: background 150ms ease;
+	}
+
+	.newsletter-cta__btn:hover { background: var(--color-accent-hover); }
+
+	.newsletter-cta__tos {
+		margin-top: 0.75rem;
+		font-size: 0.75rem;
+		color: var(--color-muted);
+	}
+
+	/* ========== EMPTY STATE ========== */
+	.empty-state {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		text-align: center;
+		padding: 5rem 1.5rem;
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	.btn {
+		display: inline-block;
+		margin-top: 1rem;
+		padding: 0.8rem 1.6rem;
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+		text-decoration: none;
+		border-radius: var(--radius);
+		font-size: 0.875rem;
+		font-weight: 600;
+	}
+
+	/* ========== RESPONSIVE ========== */
+	@media (max-width: 1024px) {
+		.hero-grid {
+			grid-template-columns: 1.4fr 1fr;
+			gap: 1.5rem;
+		}
+		.hero-grid :global(.mag-card:nth-child(1)) { grid-column: 1 / 2; grid-row: 1 / 3; }
+		.editors-strip__grid { grid-template-columns: repeat(2, 1fr); }
+		.latest-grid { grid-template-columns: repeat(2, 1fr); }
+		.trio-grid { grid-template-columns: repeat(2, 1fr); }
+	}
+
+	@media (max-width: 760px) {
+		.hero-grid {
+			grid-template-columns: 1fr;
+		}
+		.hero-grid :global(.mag-card:nth-child(1)) { grid-column: 1; grid-row: auto; }
+		.split-grid, .duo-grid {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+		.editors-strip__grid { grid-template-columns: 1fr 1fr; }
+		.editors-strip { padding: 1.5rem; }
+		.trio-grid, .latest-grid { grid-template-columns: 1fr; }
+		.newsletter-cta { padding: 2.5rem 1.25rem; }
+		.newsletter-cta__form { flex-direction: column; }
+		.sponsor-band { padding: 1rem 1.25rem; }
+	}
+</style>

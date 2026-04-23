@@ -1,0 +1,938 @@
+{
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "Dynatrace Club Theme",
+    "description": "Editorial blog theme for observability, Dynatrace & applied AI",
+    "author": "Dynatrace Club"
+  },
+  "settings": {
+    "title": "Dynatrace Club",
+    "tagline": "Field notes on observability, Dynatrace, and applied AI \u2014 for engineers who build what they watch."
+  },
+  "collections": [
+    {
+      "slug": "posts",
+      "label": "Posts",
+      "labelSingular": "Post",
+      "supports": [
+        "drafts",
+        "revisions",
+        "search",
+        "seo"
+      ],
+      "commentsEnabled": true,
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "featured_image",
+          "label": "Featured Image",
+          "type": "image"
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "excerpt",
+          "label": "Excerpt",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "supports": [
+        "drafts",
+        "revisions",
+        "search"
+      ],
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "content",
+          "label": "Content",
+          "type": "portableText",
+          "searchable": true
+        }
+      ]
+    }
+  ],
+  "taxonomies": [
+    {
+      "name": "category",
+      "label": "Categories",
+      "labelSingular": "Category",
+      "hierarchical": true,
+      "collections": [
+        "posts"
+      ],
+      "terms": [
+        {
+          "slug": "observability",
+          "label": "Observability"
+        },
+        {
+          "slug": "dynatrace",
+          "label": "Dynatrace"
+        },
+        {
+          "slug": "ai",
+          "label": "AI"
+        },
+        {
+          "slug": "sre",
+          "label": "SRE & Reliability"
+        }
+      ]
+    },
+    {
+      "name": "tag",
+      "label": "Tags",
+      "labelSingular": "Tag",
+      "hierarchical": false,
+      "collections": [
+        "posts"
+      ],
+      "terms": [
+        {
+          "slug": "opentelemetry",
+          "label": "OpenTelemetry"
+        },
+        {
+          "slug": "tracing",
+          "label": "Distributed Tracing"
+        },
+        {
+          "slug": "davis-ai",
+          "label": "Davis AI"
+        },
+        {
+          "slug": "kubernetes",
+          "label": "Kubernetes"
+        },
+        {
+          "slug": "dashboards",
+          "label": "Dashboards"
+        },
+        {
+          "slug": "llm-ops",
+          "label": "LLM Ops"
+        },
+        {
+          "slug": "monitoring",
+          "label": "Monitoring"
+        },
+        {
+          "slug": "slo",
+          "label": "SLO & Error Budgets"
+        }
+      ]
+    }
+  ],
+  "bylines": [
+    {
+      "id": "byline-editorial",
+      "slug": "dynatrace-club-editorial",
+      "displayName": "Dynatrace Club Editorial"
+    },
+    {
+      "id": "byline-warez",
+      "slug": "warez",
+      "displayName": "warez"
+    },
+    {
+      "id": "byline-guest",
+      "slug": "guest-contributor",
+      "displayName": "Guest Contributor",
+      "isGuest": true
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Primary Navigation",
+      "items": [
+        {
+          "type": "custom",
+          "label": "Articles",
+          "url": "/posts"
+        },
+        {
+          "type": "custom",
+          "label": "Observability",
+          "url": "/category/observability"
+        },
+        {
+          "type": "custom",
+          "label": "Dynatrace",
+          "url": "/category/dynatrace"
+        },
+        {
+          "type": "custom",
+          "label": "AI",
+          "url": "/category/ai"
+        },
+        {
+          "type": "custom",
+          "label": "SRE",
+          "url": "/category/sre"
+        },
+        {
+          "type": "custom",
+          "label": "About",
+          "url": "/pages/about"
+        }
+      ]
+    }
+  ],
+  "widgetAreas": [
+    {
+      "name": "sidebar",
+      "label": "Sidebar",
+      "description": "Widget area displayed on single post pages",
+      "widgets": [
+        {
+          "type": "component",
+          "componentId": "core:search",
+          "title": "Search"
+        },
+        {
+          "type": "component",
+          "componentId": "core:categories",
+          "title": "Categories"
+        },
+        {
+          "type": "component",
+          "componentId": "core:tags",
+          "title": "Topics"
+        },
+        {
+          "type": "component",
+          "componentId": "core:recent-posts",
+          "title": "Latest",
+          "settings": {
+            "count": 5,
+            "showDate": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "footer",
+      "label": "Footer",
+      "description": "Widget area displayed in the site footer",
+      "widgets": [
+        {
+          "type": "content",
+          "title": "About Dynatrace Club",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "An independent publication about observability, Dynatrace, and applied AI. Written by engineers for engineers."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "slug": "newsletter-signup",
+      "title": "Newsletter Signup",
+      "description": "A call-to-action block for newsletter subscriptions",
+      "keywords": [
+        "newsletter",
+        "subscribe",
+        "email",
+        "cta"
+      ],
+      "source": "theme",
+      "content": [
+        {
+          "_type": "block",
+          "style": "h3",
+          "children": [
+            {
+              "_type": "span",
+              "text": "The weekly signal"
+            }
+          ]
+        },
+        {
+          "_type": "block",
+          "style": "normal",
+          "children": [
+            {
+              "_type": "span",
+              "text": "One carefully curated email a week on observability, Dynatrace, and AI. Zero noise, unsubscribe anytime."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "content": {
+    "pages": [
+      {
+        "id": "about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About Dynatrace Club",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Dynatrace Club is an independent publication about observability, Dynatrace, and the practical edges of applied AI. No vendor press releases, no recycled marketing copy \u2014 just field notes from engineers who actually run the systems they write about."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The posts here aim to be honest, opinionated, and useful. Expect distributed-tracing deep dives, Dynatrace configuration patterns that actually work in production, Davis AI experiments, and occasional detours into the wider SRE world."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Built on EmDash and Astro. The theme is open: study it, fork it, make it your own."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "colophon",
+        "slug": "colophon",
+        "status": "published",
+        "data": {
+          "title": "Colophon",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Typeset in IBM Plex Sans and Source Serif 4. Code in JetBrains Mono. Published via EmDash CMS on Astro, hosted as a static-first SSR hybrid. Warm cream on near-black, or deep navy for late-night reading."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-otel-drop-in",
+        "slug": "opentelemetry-is-not-a-drop-in-replacement",
+        "status": "published",
+        "data": {
+          "title": "OpenTelemetry Is Not a Drop-in Replacement (and That's Fine)",
+          "excerpt": "Swapping a proprietary agent for the OTel Collector looks simple on the architecture diagram. In production, it is a rewrite of how you think about telemetry.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&h=1000&fit=crop",
+              "alt": "Dashboards on a dark monitor showing latency and throughput charts",
+              "filename": "otel-drop-in.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Every six months someone on the platform team opens a Jira ticket that says \"migrate to OpenTelemetry.\" The assumption is that it's mostly a configuration change: turn the old agent off, point the services at the OTel Collector, call it a Tuesday. That is not what the migration looks like."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "OpenTelemetry is not a product. It is a specification plus a toolkit, and it deliberately leaves a lot of decisions to you: sampling strategy, attribute conventions, exporter pipelines, how resource detection works on your platform. The power is real, but so is the surface area."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "What actually changes"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The trace waterfall looks the same from fifty feet away. Up close, the span names come from a different place, the attribute keys changed (http.status_code vs http.response.status_code), and the service.name you relied on for grouping is now computed from a resource detector that may or may not agree with your Kubernetes labels."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Any dashboard, alert, SLO, or DQL query that hardcoded the old attribute names will quietly start returning empty results. This is not a bug; it's the cost of switching to a vendor-neutral contract."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "A migration plan that actually works"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Run both in parallel. Let the OTel Collector and the legacy agent coexist for a full release cycle. Compare the same query against both. Fix the drift you find \u2014 it will be more than you expected. Only then flip the default and deprecate the old path."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Done well, the migration is invisible to operators and a quiet upgrade for everyone else. Done in a weekend, it's three months of \"why is the dashboard empty?\" Slack threads."
+                }
+              ]
+            }
+          ]
+        },
+        "bylines": [
+          {
+            "byline": "byline-editorial"
+          }
+        ],
+        "taxonomies": {
+          "category": [
+            "observability"
+          ],
+          "tag": [
+            "opentelemetry",
+            "tracing",
+            "monitoring"
+          ]
+        }
+      },
+      {
+        "id": "post-davis-ai",
+        "slug": "davis-ai-the-honest-review",
+        "status": "published",
+        "data": {
+          "title": "Davis AI: The Honest Review After Six Months",
+          "excerpt": "Causal analysis that actually works, a bit of noise you will learn to filter, and why it changed how our on-call looks at 3 a.m. pages.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1600&h=1000&fit=crop",
+              "alt": "Neural network visualization with glowing nodes",
+              "filename": "davis-ai.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "There are two kinds of \"AI in observability.\" The first is a chatbot bolted onto a log viewer. The second is causal \u2014 something that looks at the topology, the entities, the change events, and tells you which signal caused which symptom. Davis is firmly in the second camp, which is why it's worth taking seriously."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "What it gets right"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The Smartscape topology is the whole game. Because Davis knows that service A calls service B which writes to database C, its root-cause hypothesis isn't a correlation guess \u2014 it's a graph traversal. Six months in, the root-cause suggestion is right often enough that we treat it as the first hypothesis on every incident, not a tiebreaker."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The other quietly great feature is baseline-based anomaly detection. Thresholds lie the moment your traffic pattern changes. Baselines adapt. We removed roughly 40% of our static threshold alerts and the signal-to-noise ratio went up, not down."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "What you will end up tuning"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Auto-discovery is aggressive by default. Every sidecar, every short-lived Kubernetes pod, every synthetic probe becomes an entity unless you tell it otherwise. Management zones, tags, and judicious use of dt.entity.exclude rules are the difference between a clean UI and a pile of noise."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The other thing worth saying: Davis is not magic for your business logic. It knows your infrastructure. It does not know that the \"checkout funnel p95\" matters more than \"background-refresh p95.\" You still have to tell it that via SLOs and custom events."
+                }
+              ]
+            }
+          ]
+        },
+        "bylines": [
+          {
+            "byline": "byline-warez"
+          }
+        ],
+        "taxonomies": {
+          "category": [
+            "dynatrace"
+          ],
+          "tag": [
+            "davis-ai",
+            "monitoring"
+          ]
+        }
+      },
+      {
+        "id": "post-slo-math",
+        "slug": "the-small-math-of-slos",
+        "status": "published",
+        "data": {
+          "title": "The Small Math of SLOs",
+          "excerpt": "Most SLO discussions go sideways because nobody does the arithmetic. Five minutes with a calculator will save you a quarter of pager fatigue.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&h=1000&fit=crop",
+              "alt": "Laptop displaying charts and graphs",
+              "filename": "slo-math.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "99.9% availability sounds reasonable until you look at what it means in minutes. Over a 28-day window, 99.9% gives you 40 minutes of allowed downtime. Two deployments, one routine maintenance, and you're in error-budget territory before the third week."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Three-nines is a reasonable target for an internal API. It is an aspirational target for a user-facing checkout flow if you have a single region, a single database, and no feature flags. The number has to match your architecture or the SLO becomes theater."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Burn rates beat windows"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "A 28-day window tells you whether you failed last month. A burn-rate alert tells you whether the next hour is going to eat your quarter. The canonical multi-window, multi-burn-rate setup from the Google SRE workbook is still the right answer, and it's the one most teams don't implement because it \"feels complicated.\" It isn't \u2014 it's four alerts."
+                }
+              ]
+            }
+          ]
+        },
+        "taxonomies": {
+          "category": [
+            "sre"
+          ],
+          "tag": [
+            "slo",
+            "monitoring"
+          ]
+        }
+      },
+      {
+        "id": "post-llm-observability",
+        "slug": "observability-for-llm-apps",
+        "status": "published",
+        "data": {
+          "title": "Observability for LLM Apps Is Just Observability",
+          "excerpt": "No, you do not need a dedicated 'LLM observability' platform. You need traces, structured logs, and three extra span attributes.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&h=1000&fit=crop",
+              "alt": "Abstract visualization of AI and code",
+              "filename": "llm-observability.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The vendor pitch decks would have you believe that LLM-powered features require an entirely new telemetry stack. They do not. A GPT call is an outbound HTTP request with interesting attributes. A RAG pipeline is a span tree. Token usage is a gauge. You have seen all of this before."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The three attributes that matter"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "gen_ai.request.model, gen_ai.usage.input_tokens, gen_ai.usage.output_tokens. Add these to every span that wraps an LLM call, follow the OpenTelemetry GenAI semantic conventions, and you get cost dashboards, model-level latency, and per-tenant spend for free \u2014 in the tooling you already own."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Capture the prompt only if you have thought carefully about PII. In regulated environments that means a separate, controlled sink \u2014 not your regular trace backend."
+                }
+              ]
+            }
+          ]
+        },
+        "bylines": [
+          {
+            "byline": "byline-editorial"
+          }
+        ],
+        "taxonomies": {
+          "category": [
+            "ai"
+          ],
+          "tag": [
+            "llm-ops",
+            "opentelemetry",
+            "tracing"
+          ]
+        }
+      },
+      {
+        "id": "post-dql-patterns",
+        "slug": "five-dql-patterns",
+        "status": "published",
+        "data": {
+          "title": "Five DQL Patterns Worth Memorising",
+          "excerpt": "Short, opinionated, copy-pasteable. The queries I end up writing on every Dynatrace tenant.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=1600&h=1000&fit=crop",
+              "alt": "Terminal with colourful code on a dark background",
+              "filename": "dql-patterns.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "DQL rewards repetition. The same five or six shapes cover most of what anyone asks a monitoring system: top-N, rate-of-change, percentile by dimension, join against entities, and slow-tail breakdown. Learn the shapes, not the function list."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "1. Top-N with a percentage"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "summarize count() by { endpoint.name } | sort count desc | limit 20 \u2014 and then add a windowed percentage so you can tell a genuine top offender from an endpoint that happens to get called on every page load."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "2. Percentile by dimension"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "summarize p95 = percentile(duration, 95) by { service.name, bin(timestamp, 1m) } \u2014 the single most reached-for pattern when something is slow and you can't tell where."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "The full cheat sheet is on the Colophon page. Copy it, adapt it, make it yours."
+                }
+              ]
+            }
+          ]
+        },
+        "taxonomies": {
+          "category": [
+            "dynatrace"
+          ],
+          "tag": [
+            "dashboards",
+            "monitoring"
+          ]
+        }
+      },
+      {
+        "id": "post-kubernetes-telemetry",
+        "slug": "kubernetes-telemetry-minimal-useful",
+        "status": "published",
+        "data": {
+          "title": "Kubernetes Telemetry, Minimal and Useful",
+          "excerpt": "You do not need forty dashboards to know whether your cluster is healthy. You need a handful of signals that tell you the truth.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=1000&fit=crop",
+              "alt": "Stars and a satellite representing distributed systems",
+              "filename": "k8s-telemetry.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Every Kubernetes monitoring dashboard I have ever inherited has the same problem: too many widgets, most of them redundant, none of them surfacing the one signal someone actually cares about. The fix is not adding charts \u2014 it is deleting them."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Four signals per cluster, at most: pods in non-Ready state longer than a threshold, node pressure (memory and disk), API server latency, and a rolled-up SLO burn for the tenant's production namespaces. Everything else belongs on a drill-down, not the overview."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "h2",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Labels are load-bearing"
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Dashboards only work if the labels are consistent. Pick a naming convention for team, environment, and tier. Enforce it at admission time with a policy engine. Do not argue about it in PRs six months later."
+                }
+              ]
+            }
+          ]
+        },
+        "bylines": [
+          {
+            "byline": "byline-warez"
+          }
+        ],
+        "taxonomies": {
+          "category": [
+            "observability"
+          ],
+          "tag": [
+            "kubernetes",
+            "dashboards"
+          ]
+        }
+      },
+      {
+        "id": "post-editors-note",
+        "slug": "editors-note-why-this-exists",
+        "status": "published",
+        "data": {
+          "title": "Editor's Note: Why Dynatrace Club Exists",
+          "excerpt": "Because the observability conversation online is mostly vendor decks and Reddit fights. There is room for something quieter and more useful.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=1000&fit=crop",
+              "alt": "Mountain landscape symbolising a long-term perspective",
+              "filename": "editors-note.jpg"
+            }
+          },
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Hello. If you are reading this, you are on Dynatrace Club \u2014 a small publication about observability, Dynatrace, and applied AI. The pitch is short: write about what actually happens in production, with as little marketing residue as possible."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "Expect one or two posts a week. Longer pieces when a topic deserves room to breathe, short notes when it doesn't. Comments are open, corrections are welcome, and the RSS feed is a first-class citizen."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [
+                {
+                  "_type": "span",
+                  "text": "If you want to write something here, the contact address is on the About page. See you in the traces."
+                }
+              ]
+            }
+          ]
+        },
+        "bylines": [
+          {
+            "byline": "byline-editorial"
+          }
+        ],
+        "taxonomies": {
+          "category": [
+            "observability"
+          ],
+          "tag": [
+            "monitoring"
+          ]
+        }
+      }
+    ]
+  }
+}

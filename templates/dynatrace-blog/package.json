@@ -1,0 +1,38 @@
+{
+  "name": "@dynatrace-club/theme-blog",
+  "version": "1.0.0",
+  "description": "Dynatrace Club — an editorial blog theme for observability, Dynatrace & AI, built on EmDash",
+  "private": true,
+  "type": "module",
+  "emdash": {
+    "seed": "seed/seed.json"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "start": "node ./dist/server/entry.mjs",
+    "bootstrap": "emdash init && emdash seed",
+    "seed": "emdash seed",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "catalog:",
+    "@astrojs/react": "catalog:",
+    "@emdash-cms/plugin-audit-log": "workspace:*",
+    "astro": "catalog:",
+    "better-sqlite3": "catalog:",
+    "emdash": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  }
+}

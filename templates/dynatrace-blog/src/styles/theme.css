@@ -1,0 +1,282 @@
+/*
+  Dynatrace Club — SmartMag-inspired news magazine theme.
+  Dense editorial layout with colored category badges, section accents,
+  and a bold sans-serif aesthetic for observability, Dynatrace & AI news.
+*/
+
+:root {
+	/* ========== Colors — Light magazine ========== */
+	--color-bg: #ffffff;
+	--color-bg-subtle: #f6f6f7;
+	--color-text: #14161a;
+	--color-text-secondary: #3b4149;
+	--color-muted: #6e7682;
+	--color-border: #e5e7eb;
+	--color-border-subtle: #eef0f3;
+	--color-surface: #f4f5f7;
+
+	/* Brand accent — signal red of breaking news */
+	--color-accent: #e63946;
+	--color-accent-hover: #c92a37;
+	--color-on-accent: #ffffff;
+	--color-accent-ring: color-mix(in srgb, var(--color-accent) 22%, transparent);
+
+	/* Top bar */
+	--color-topbar-bg: #0f1115;
+	--color-topbar-text: #c7cbd3;
+	--color-topbar-muted: #7a818d;
+
+	/* Category colors — each topic gets a distinct signal */
+	--cat-observability: #e63946;  /* red — breaking */
+	--cat-dynatrace:     #1d4ed8;  /* blue — platform */
+	--cat-ai:            #f59e0b;  /* amber — emerging */
+	--cat-sre:           #059669;  /* emerald — ops */
+
+	/* ========== Typography ========== */
+	--font-ui:
+		var(--font-sans),
+		"IBM Plex Sans",
+		system-ui,
+		-apple-system,
+		"Segoe UI",
+		sans-serif;
+	--font-display:
+		var(--font-serif),
+		"Source Serif 4",
+		Georgia,
+		serif;
+
+	/* Type scale — magazine */
+	--font-size-xs: 0.75rem;
+	--font-size-sm: 0.875rem;
+	--font-size-base: 1rem;
+	--font-size-lg: 1.125rem;
+	--font-size-xl: 1.3125rem;
+	--font-size-2xl: 1.625rem;
+	--font-size-3xl: 2rem;
+	--font-size-4xl: 2.5rem;
+	--font-size-5xl: 3.25rem;
+
+	--leading-tight: 1.12;
+	--leading-snug: 1.25;
+	--leading-normal: 1.45;
+	--leading-relaxed: 1.7;
+
+	--tracking-tight: -0.024em;
+	--tracking-snug: -0.014em;
+	--tracking-wide: 0.06em;
+	--tracking-wider: 0.14em;
+
+	/* Layout */
+	--content-width: 720px;
+	--wide-width: 1240px;
+	--gutter-width: 200px;
+	--meta-col-width: 180px;
+	--nav-height: 72px;
+	--topbar-height: 36px;
+
+	--radius: 2px;
+	--radius-lg: 4px;
+
+	--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--shadow-card-hover: 0 10px 24px -6px rgba(0, 0, 0, 0.12);
+	--shadow-dropdown: 0 14px 40px -12px rgba(0, 0, 0, 0.18),
+		0 4px 14px -4px rgba(0, 0, 0, 0.06);
+	--shadow-btn-active: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+	--tag-padding-y: 3px;
+}
+
+/* ========== Dark mode ========== */
+@media (prefers-color-scheme: dark) {
+	:root:not(.light) {
+		--color-bg: #0e1014;
+		--color-bg-subtle: #14171c;
+		--color-text: #ecedf0;
+		--color-text-secondary: #b6bbc4;
+		--color-muted: #7a818d;
+		--color-border: #20242b;
+		--color-border-subtle: #181b21;
+		--color-surface: #181b21;
+		--color-accent: #ff5a67;
+		--color-accent-hover: #ff8b94;
+		--color-on-accent: #0e1014;
+
+		--color-topbar-bg: #070809;
+		--color-topbar-text: #9ea4af;
+		--color-topbar-muted: #5c626c;
+
+		--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+		--shadow-card-hover: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+	}
+}
+
+:root.dark {
+	--color-bg: #0e1014;
+	--color-bg-subtle: #14171c;
+	--color-text: #ecedf0;
+	--color-text-secondary: #b6bbc4;
+	--color-muted: #7a818d;
+	--color-border: #20242b;
+	--color-border-subtle: #181b21;
+	--color-surface: #181b21;
+	--color-accent: #ff5a67;
+	--color-accent-hover: #ff8b94;
+	--color-on-accent: #0e1014;
+
+	--color-topbar-bg: #070809;
+	--color-topbar-text: #9ea4af;
+	--color-topbar-muted: #5c626c;
+
+	--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+	--shadow-card-hover: 0 14px 34px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* ========== Global typography ========== */
+html body {
+	font-family: var(--font-ui);
+	font-feature-settings: "ss01", "cv11", "calt";
+	-webkit-font-smoothing: antialiased;
+}
+
+/* Headlines — tight, bold, magazine */
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-ui);
+	font-weight: 700;
+	letter-spacing: var(--tracking-tight);
+	line-height: var(--leading-tight);
+}
+
+/* Article body — serif for long-form reading */
+:where(.portable-text, .prose, article .content, .post-content) {
+	font-family: var(--font-display);
+	font-size: 1.125rem;
+	line-height: 1.72;
+	letter-spacing: -0.003em;
+}
+
+:where(.portable-text, .prose, article .content, .post-content) p {
+	margin-bottom: 1.35em;
+}
+
+:where(.portable-text, .prose, article .content, .post-content) h2,
+:where(.portable-text, .prose, article .content, .post-content) h3 {
+	font-family: var(--font-ui);
+	margin-top: 1.8em;
+	margin-bottom: 0.6em;
+}
+
+:where(.portable-text, .prose, article .content, .post-content) blockquote {
+	border-left: 4px solid var(--color-accent);
+	padding-left: 1.25rem;
+	margin: 1.5rem 0;
+	font-style: italic;
+	color: var(--color-text-secondary);
+}
+
+:where(.portable-text, .prose, article .content, .post-content) code {
+	font-family: var(--font-mono);
+	font-size: 0.88em;
+	background: var(--color-surface);
+	padding: 0.12em 0.4em;
+	border-radius: 3px;
+}
+
+:where(.portable-text, .prose, article .content, .post-content) pre {
+	font-family: var(--font-mono);
+	background: var(--color-surface);
+	padding: 1rem 1.25rem;
+	border-radius: var(--radius-lg);
+	border: 1px solid var(--color-border-subtle);
+	overflow-x: auto;
+	font-size: 0.9375rem;
+	line-height: 1.55;
+}
+
+::selection {
+	background: var(--color-accent);
+	color: var(--color-on-accent);
+}
+
+/* ========== Category badge — the visual signature of the theme ========== */
+.cat-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	font-family: var(--font-ui);
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #fff;
+	background: var(--color-muted);
+	border-radius: var(--radius);
+	line-height: 1;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: middle;
+	transition: filter 150ms ease;
+}
+
+.cat-badge:hover {
+	filter: brightness(1.1);
+	color: #fff !important;
+}
+
+.cat-badge[data-cat="observability"] { background: var(--cat-observability); }
+.cat-badge[data-cat="dynatrace"]     { background: var(--cat-dynatrace); }
+.cat-badge[data-cat="ai"]            { background: var(--cat-ai); }
+.cat-badge[data-cat="sre"]           { background: var(--cat-sre); }
+
+/* ========== Section heading — magazine style with left accent ========== */
+.mag-section-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid var(--color-text);
+}
+
+.mag-section-title h2 {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: var(--color-text);
+	margin: 0;
+}
+
+.mag-section-title h2::before {
+	content: "";
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	background: var(--color-accent);
+	border-radius: 2px;
+}
+
+.mag-section-title[data-cat="observability"] h2::before { background: var(--cat-observability); }
+.mag-section-title[data-cat="dynatrace"] h2::before     { background: var(--cat-dynatrace); }
+.mag-section-title[data-cat="ai"] h2::before            { background: var(--cat-ai); }
+.mag-section-title[data-cat="sre"] h2::before           { background: var(--cat-sre); }
+
+.mag-section-title a {
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--color-muted);
+	text-decoration: none;
+	transition: color 150ms ease;
+}
+
+.mag-section-title a:hover {
+	color: var(--color-accent);
+}
+
+/* Hide the default global grain */
+body::before { display: none; }
