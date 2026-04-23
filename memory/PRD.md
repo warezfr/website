@@ -28,8 +28,8 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 1. v1 — Minimalist editorial theme (cream/teal) — rejected by user (too minimal)
 2. v2 — SmartMag-style dense news magazine homepage + branded Base
 3. v3 — Article detail page rewritten in SmartMag style (fixes misaligned columns)
-4. v4 — **Current**: full-bleed hero image on articles (title below),
-   interactive animated carousel banner on homepage, complete About-page redesign
+4. v4 — Full-bleed hero image on articles, interactive carousel on homepage, About-page redesign
+5. v5 — **Current**: full-width carousel + Trending ticker + Review Score circular badge pattern (SmartMag-grade), generous spacing pass
 
 ### Files created / modified
 - `templates/dynatrace-blog/package.json` — `@dynatrace-club/theme-blog`
@@ -42,7 +42,10 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 - `templates/dynatrace-blog/src/components/MagCard.astro` — card primitive (hero/stack/row/minimal)
 - `templates/dynatrace-blog/src/pages/posts/[slug].astro` — SmartMag article (breadcrumbs, badge, drop-cap, share rail, reading progress, 2-col, sidebar) + **full-bleed hero image with Ken Burns zoom** (v4)
 - `templates/dynatrace-blog/src/pages/pages/[slug].astro` — **About/page layout redesigned** with animated blob hero, stats strip, house-rules sidebar, topic grid, CTA (v4)
-- `templates/dynatrace-blog/src/components/HeroCarousel.astro` — **interactive fade carousel** (5 slides, Ken Burns zoom, arrows, dots with fill progress, autoplay + swipe + keyboard + pause on hover) (v4)
+- `templates/dynatrace-blog/src/components/HeroCarousel.astro` — interactive fade carousel (5 slides, Ken Burns zoom, arrows, dots with fill progress, autoplay + swipe + keyboard + pause on hover)
+- `templates/dynatrace-blog/src/components/ReviewScore.astro` — **SmartMag-style circular review badge** (ring animation, score/max display, verdict text, 4 color bands: excellent/great/fair/poor)
+- `templates/dynatrace-blog/src/components/ReviewScoreBadge.astro` — compact corner-badge variant (auto-displayed on `MagCard` images when a post has `review_score`)
+- Seed now includes `review_score` + `review_verdict` fields on posts collection; Davis AI = 86, DQL patterns = 92, Kubernetes = 74
 - `templates/dynatrace-blog/seed/seed.json` — full custom seed (categories + 7 posts + pages + menus)
 
 ### Visual identity

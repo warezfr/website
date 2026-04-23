@@ -45,6 +45,18 @@
           "slug": "excerpt",
           "label": "Excerpt",
           "type": "text"
+        },
+        {
+          "slug": "review_score",
+          "label": "Review Score (0-100)",
+          "type": "number",
+          "description": "If this is a review post, score from 0 to 100. Leave empty for non-reviews."
+        },
+        {
+          "slug": "review_verdict",
+          "label": "Review Verdict",
+          "type": "string",
+          "description": "Short verdict text, e.g. \"Recommended for teams running k8s at scale\""
         }
       ]
     },
@@ -556,7 +568,9 @@
                 }
               ]
             }
-          ]
+          ],
+          "review_score": 86,
+          "review_verdict": "Recommended \u2014 works with your brain, not instead of it."
         },
         "bylines": [
           {
@@ -788,7 +802,9 @@
                 }
               ]
             }
-          ]
+          ],
+          "review_score": 92,
+          "review_verdict": "Copy-paste-worthy. Bookmark this."
         },
         "taxonomies": {
           "category": [
@@ -855,7 +871,9 @@
                 }
               ]
             }
-          ]
+          ],
+          "review_score": 74,
+          "review_verdict": "A good starting pattern, needs work for large clusters."
         },
         "bylines": [
           {

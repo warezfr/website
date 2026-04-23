@@ -1,0 +1,91 @@
+---
+/*
+  ReviewScoreBadge — compact circular score badge meant to be placed on a card
+  or image corner. Shares the same color bands as ReviewScore.astro.
+*/
+interface Props {
+	score: number;
+	max?: number;
+	class?: string;
+}
+
+const { score, max = 100, class: className } = Astro.props;
+const pct = Math.max(0, Math.min(1, score / max));
+const pctRounded = Math.round(pct * 100);
+const band =
+	score / max >= 0.85 ? "excellent" :
+	score / max >= 0.70 ? "great" :
+	score / max >= 0.50 ? "fair" : "poor";
+---
+
+<div
+	class:list={["review-score-badge", `band-${band}`, className]}
+	data-testid="review-score-badge"
+	aria-label={`Review score: ${score} out of ${max}`}
+>
+	<svg viewBox="0 0 44 44" aria-hidden="true">
+		<circle cx="22" cy="22" r="19" class="ring-track" />
+		<circle
+			cx="22" cy="22" r="19" class="ring-fill"
+			pathLength="100"
+			style={`stroke-dashoffset:${100 - pctRounded};`}
+		/>
+	</svg>
+	<span class="review-score-badge__value">{score}</span>
+</div>
+
+<style>
+	.review-score-badge {
+		position: relative;
+		width: 44px;
+		height: 44px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(10, 12, 16, 0.7);
+		backdrop-filter: blur(8px);
+		border-radius: 50%;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	}
+
+	.review-score-badge svg {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		transform: rotate(-90deg);
+	}
+
+	.ring-track {
+		fill: none;
+		stroke: rgba(255, 255, 255, 0.18);
+		stroke-width: 3;
+	}
+
+	.ring-fill {
+		fill: none;
+		stroke: var(--score-color, var(--color-accent));
+		stroke-width: 3;
+		stroke-linecap: round;
+		stroke-dasharray: 100;
+		animation: badge-draw 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	}
+	@keyframes badge-draw {
+		from { stroke-dashoffset: 100; }
+	}
+
+	.review-score-badge__value {
+		position: relative;
+		font-family: var(--font-ui);
+		font-size: 0.875rem;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: #fff;
+		line-height: 1;
+	}
+
+	.band-excellent { --score-color: #10b981; }
+	.band-great     { --score-color: #3b82f6; }
+	.band-fair      { --score-color: #f59e0b; }
+	.band-poor      { --score-color: #ef4444; }
+</style>

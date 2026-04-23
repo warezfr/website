@@ -10,6 +10,7 @@
 import type { MediaValue, ContentBylineCredit } from "emdash";
 import { Image } from "emdash/ui";
 import CategoryBadge from "./CategoryBadge.astro";
+import ReviewScoreBadge from "./ReviewScoreBadge.astro";
 
 interface Cat { slug: string; label: string; }
 
@@ -25,6 +26,7 @@ interface Props {
 	variant?: "hero" | "stack" | "row" | "minimal";
 	showExcerpt?: boolean;
 	titleSize?: "sm" | "md" | "lg" | "xl";
+	reviewScore?: number | null;
 }
 
 const {
@@ -39,6 +41,7 @@ const {
 	variant = "stack",
 	showExcerpt = false,
 	titleSize,
+	reviewScore,
 } = Astro.props;
 
 const formattedDate = date
@@ -71,6 +74,11 @@ const sizeClass = titleSize
 			{categories.length > 0 && variant === "hero" && (
 				<div class="mag-card__badge-overlay">
 					<CategoryBadge category={categories[0]} />
+				</div>
+			)}
+			{typeof reviewScore === "number" && variant !== "row" && (
+				<div class="mag-card__score-overlay">
+					<ReviewScoreBadge score={reviewScore} />
 				</div>
 			)}
 		</a>
@@ -138,6 +146,12 @@ const sizeClass = titleSize
 		position: absolute;
 		top: 0.75rem;
 		left: 0.75rem;
+	}
+
+	.mag-card__score-overlay {
+		position: absolute;
+		bottom: 0.75rem;
+		right: 0.75rem;
 	}
 
 	.mag-card__cat {

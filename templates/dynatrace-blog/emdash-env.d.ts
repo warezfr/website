@@ -25,6 +25,8 @@ export interface Post {
   featured_image?: { id: string; src?: string; alt?: string; width?: number; height?: number };
   content?: PortableTextBlock[];
   excerpt?: string;
+  review_score?: number;
+  review_verdict?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;

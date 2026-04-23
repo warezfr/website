@@ -30,6 +30,8 @@ const enriched = await Promise.all(
 			tags: tags.map((t) => ({ slug: t.slug, label: t.label })),
 			bylines: post.data.bylines ?? [],
 			readingTime: getReadingTime(post.data.content),
+			reviewScore:
+				typeof post.data.review_score === "number" ? post.data.review_score : null,
 		};
 	})
 );
@@ -81,10 +83,33 @@ const latestPosts = enriched.slice(0, 6);
 			<a href="/_emdash/admin/content/posts/new" class="btn">Create a post</a>
 		</section>
 	) : (
-		<div class="mag-home">
-			{/* ============ INTERACTIVE CAROUSEL BANNER ============ */}
+		<>
+			{/* ============ FULL-BLEED INTERACTIVE CAROUSEL ============ */}
 			{carouselSlides.length > 0 && (
-				<HeroCarousel slides={carouselSlides} />
+				<div class="home-carousel-wrap">
+					<HeroCarousel slides={carouselSlides} />
+				</div>
+			)}
+
+			<div class="mag-home">
+			{/* ============ TRENDING TICKER ============ */}
+			{enriched.length > 0 && (
+				<aside class="trending-bar" aria-label="Trending topics" data-testid="trending-bar">
+					<span class="trending-bar__label">
+						<span class="trending-bar__pulse" aria-hidden="true"></span>
+						Trending now
+					</span>
+					<div class="trending-bar__track">
+						<div class="trending-bar__items">
+							{enriched.slice(0, 6).map((e, i) => (
+								<a href={e.href} class="trending-bar__item">
+									<span class="trending-bar__num">{String(i + 1).padStart(2, "0")}</span>
+									<span class="trending-bar__title">{e.post.data.title}</span>
+								</a>
+							))}
+						</div>
+					</div>
+				</aside>
 			)}
 
 			{/* ============ 3-COLUMN HERO ============ */}
@@ -100,6 +125,7 @@ const latestPosts = enriched.slice(0, 6);
 							readingTime={s.readingTime}
 							categories={s.categories}
 							bylines={s.bylines}
+							reviewScore={s.reviewScore}
 							variant="hero"
 						/>
 					))}
@@ -150,6 +176,7 @@ const latestPosts = enriched.slice(0, 6);
 								readingTime={observabilityPosts[0].readingTime}
 								categories={observabilityPosts[0].categories}
 								bylines={observabilityPosts[0].bylines}
+							reviewScore={observabilityPosts[0].reviewScore}
 								variant="stack"
 								titleSize="lg"
 								showExcerpt
@@ -203,6 +230,7 @@ const latestPosts = enriched.slice(0, 6);
 										readingTime={p.readingTime}
 										categories={p.categories}
 										bylines={p.bylines}
+							reviewScore={p.reviewScore}
 										variant="stack"
 										titleSize="md"
 										showExcerpt
@@ -241,6 +269,7 @@ const latestPosts = enriched.slice(0, 6);
 										readingTime={p.readingTime}
 										categories={p.categories}
 										bylines={p.bylines}
+							reviewScore={p.reviewScore}
 										variant="stack"
 										titleSize="md"
 										showExcerpt
@@ -280,6 +309,7 @@ const latestPosts = enriched.slice(0, 6);
 								readingTime={p.readingTime}
 								categories={p.categories}
 								bylines={p.bylines}
+							reviewScore={p.reviewScore}
 								variant="stack"
 								titleSize="md"
 								showExcerpt
@@ -306,6 +336,7 @@ const latestPosts = enriched.slice(0, 6);
 							readingTime={p.readingTime}
 							categories={p.categories}
 							bylines={p.bylines}
+							reviewScore={p.reviewScore}
 							variant="stack"
 							titleSize="sm"
 						/>
@@ -350,14 +381,99 @@ const latestPosts = enriched.slice(0, 6);
 				</div>
 			</section>
 		</div>
+		</>
 	)}
 </Base>
 
 <style>
+	/* ========== FULL-BLEED CAROUSEL WRAPPER ========== */
+	.home-carousel-wrap {
+		width: 100%;
+		max-width: var(--wide-width);
+		margin: 1.5rem auto 0;
+		padding: 0 1.5rem;
+	}
+
+	@media (max-width: 640px) {
+		.home-carousel-wrap { padding: 0; }
+	}
+
 	.mag-home {
 		max-width: var(--wide-width);
 		margin: 0 auto;
-		padding: 2rem 1.5rem 4rem;
+		padding: 3rem 1.5rem 5rem;
+	}
+
+	/* ========== TRENDING TICKER ========== */
+	.trending-bar {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 3rem;
+		padding: 0.85rem 1.25rem;
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-card);
+	}
+	.trending-bar__label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-shrink: 0;
+		padding: 0.35rem 0.85rem;
+		font-family: var(--font-ui);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: var(--color-on-accent);
+		background: var(--color-accent);
+		border-radius: var(--radius);
+	}
+	.trending-bar__pulse {
+		width: 7px; height: 7px; border-radius: 50%;
+		background: currentColor;
+		animation: trending-pulse 1.5s ease-in-out infinite;
+	}
+	@keyframes trending-pulse {
+		0%, 100% { opacity: 1; transform: scale(1); }
+		50% { opacity: 0.45; transform: scale(0.82); }
+	}
+	.trending-bar__track {
+		flex: 1;
+		overflow: hidden;
+		mask-image: linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 30px), transparent);
+	}
+	.trending-bar__items {
+		display: flex;
+		gap: 2rem;
+		animation: trending-scroll 45s linear infinite;
+		width: max-content;
+	}
+	.trending-bar:hover .trending-bar__items { animation-play-state: paused; }
+	@keyframes trending-scroll {
+		from { transform: translateX(0); }
+		to { transform: translateX(-50%); }
+	}
+	.trending-bar__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-family: var(--font-ui);
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		white-space: nowrap;
+		transition: color 150ms ease;
+	}
+	.trending-bar__item:hover { color: var(--color-accent); }
+	.trending-bar__num {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--color-accent);
 	}
 
 	/* ========== HERO GRID ========== */
@@ -365,8 +481,8 @@ const latestPosts = enriched.slice(0, 6);
 		display: grid;
 		grid-template-columns: 1.6fr 1fr 1fr;
 		gap: 1.5rem;
-		margin-bottom: 3rem;
-		padding-bottom: 3rem;
+		margin-bottom: 4rem;
+		padding-bottom: 4rem;
 		border-bottom: 1px solid var(--color-border);
 	}
 
@@ -417,7 +533,7 @@ const latestPosts = enriched.slice(0, 6);
 
 	/* ========== MAG BLOCKS ========== */
 	.mag-block {
-		margin-bottom: 3rem;
+		margin-bottom: 4.5rem;
 	}
 
 	.mag-section-title h2 a {
@@ -452,8 +568,8 @@ const latestPosts = enriched.slice(0, 6);
 	.duo-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 2.5rem;
-		margin-bottom: 3rem;
+		gap: 3rem;
+		margin-bottom: 4.5rem;
 	}
 
 	.list-column {
@@ -519,11 +635,11 @@ const latestPosts = enriched.slice(0, 6);
 		flex-wrap: wrap;
 		align-items: center;
 		gap: 1rem 1.5rem;
-		padding: 1.25rem 1.75rem;
+		padding: 1.5rem 2rem;
 		background: var(--color-bg-subtle);
 		border-left: 4px solid var(--color-accent);
 		border-radius: var(--radius-lg);
-		margin-bottom: 3rem;
+		margin-bottom: 4.5rem;
 	}
 
 	.sponsor-band__tag {
