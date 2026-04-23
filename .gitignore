@@ -70,3 +70,12 @@ examples/wp-theme-unit-test/
 
 .perf-query-counts
 query-counts-out/
+-e 
+# Environment and credential files
+.env
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
