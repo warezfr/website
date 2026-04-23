@@ -3,6 +3,7 @@ import { getEmDashCollection, getEntryTerms, getSiteSettings } from "emdash";
 import Base from "../layouts/Base.astro";
 import MagCard from "../components/MagCard.astro";
 import CategoryBadge from "../components/CategoryBadge.astro";
+import HeroCarousel from "../components/HeroCarousel.astro";
 import { getReadingTime } from "../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
 
@@ -38,8 +39,27 @@ const byCategory = (slug: string) =>
 	enriched.filter((e) => e.categories.some((c) => c.slug === slug));
 
 // ----- Section slices -----
-const heroStories = enriched.filter((e) => e.post.data.featured_image).slice(0, 3);
-const heroIds = new Set(heroStories.map((e) => e.post.data.id));
+const carouselSlides = enriched
+	.filter((e) => e.post.data.featured_image)
+	.slice(0, 5)
+	.map((e) => ({
+		title: e.post.data.title ?? "Untitled",
+		excerpt: e.post.data.excerpt,
+		featuredImage: e.post.data.featured_image,
+		href: e.href,
+		date: e.post.data.publishedAt,
+		readingTime: e.readingTime,
+		categories: e.categories,
+		bylines: e.bylines,
+	}));
+const carouselIds = new Set(
+	enriched.filter((e) => e.post.data.featured_image).slice(0, 5).map((e) => e.post.data.id)
+);
+
+const heroStories = enriched
+	.filter((e) => e.post.data.featured_image && !carouselIds.has(e.post.data.id))
+	.slice(0, 3);
+const heroIds = new Set([...carouselIds, ...heroStories.map((e) => e.post.data.id)]);
 
 const editorsPicks = enriched
 	.filter((e) => !heroIds.has(e.post.data.id))
@@ -62,6 +82,11 @@ const latestPosts = enriched.slice(0, 6);
 		</section>
 	) : (
 		<div class="mag-home">
+			{/* ============ INTERACTIVE CAROUSEL BANNER ============ */}
+			{carouselSlides.length > 0 && (
+				<HeroCarousel slides={carouselSlides} />
+			)}
+
 			{/* ============ 3-COLUMN HERO ============ */}
 			{heroStories.length > 0 && (
 				<section class="hero-grid" data-testid="home-hero-grid">

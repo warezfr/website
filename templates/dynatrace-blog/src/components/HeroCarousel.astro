@@ -1,0 +1,448 @@
+---
+/*
+  HeroCarousel — interactive featured-articles banner.
+  Auto-plays, pauses on hover, arrow + dot controls, smooth
+  cross-fade with a subtle Ken Burns zoom on the image.
+*/
+import type { MediaValue, ContentBylineCredit } from "emdash";
+import { Image } from "emdash/ui";
+import CategoryBadge from "./CategoryBadge.astro";
+
+interface Cat { slug: string; label: string; }
+interface Slide {
+	title: string;
+	excerpt?: string | null;
+	featuredImage?: MediaValue | string | null;
+	href: string;
+	date?: Date | null;
+	readingTime?: number;
+	categories?: Cat[];
+	bylines?: ContentBylineCredit[];
+}
+
+interface Props {
+	slides: Slide[];
+	autoplayMs?: number;
+}
+
+const { slides, autoplayMs = 6000 } = Astro.props;
+
+const fmt = (d?: Date | null) =>
+	d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
+---
+
+{slides.length > 0 && (
+	<section
+		class="hcarousel"
+		data-autoplay={autoplayMs}
+		data-testid="hero-carousel"
+		aria-roledescription="carousel"
+		aria-label="Featured stories"
+	>
+		<div class="hcarousel__track" id="hcarousel-track">
+			{slides.map((s, i) => (
+				<div
+					class:list={["hcarousel__slide", i === 0 && "is-active"]}
+					data-index={i}
+					data-href={s.href}
+					role="group"
+					aria-roledescription="slide"
+					aria-label={`${i + 1} of ${slides.length}`}
+				>
+					<div class="hcarousel__media">
+						{s.featuredImage && <Image image={s.featuredImage} />}
+						<div class="hcarousel__scrim" aria-hidden="true"></div>
+					</div>
+					<div class="hcarousel__caption">
+						<div class="hcarousel__meta">
+							{s.categories?.[0] && (
+								<span
+									class="cat-badge"
+									data-cat={s.categories[0].slug}
+								>
+									{s.categories[0].label}
+								</span>
+							)}
+							{fmt(s.date) && <time class="hcarousel__date">{fmt(s.date)}</time>}
+							{s.readingTime && (
+								<span class="hcarousel__read">{s.readingTime} min read</span>
+							)}
+						</div>
+						<h2 class="hcarousel__title">
+							<a href={s.href} class="hcarousel__title-link">{s.title}</a>
+						</h2>
+						{s.excerpt && <p class="hcarousel__excerpt">{s.excerpt}</p>}
+						<a href={s.href} class="hcarousel__cta">Read the story →</a>
+					</div>
+				</div>
+			))}
+		</div>
+
+		{/* Controls */}
+		<button
+			type="button"
+			class="hcarousel__arrow hcarousel__arrow--prev"
+			aria-label="Previous slide"
+			data-testid="carousel-prev"
+			data-dir="-1"
+		>
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+		</button>
+		<button
+			type="button"
+			class="hcarousel__arrow hcarousel__arrow--next"
+			aria-label="Next slide"
+			data-testid="carousel-next"
+			data-dir="1"
+		>
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+		</button>
+
+		{/* Dots + progress */}
+		<div class="hcarousel__dots" role="tablist" aria-label="Slides">
+			{slides.map((_, i) => (
+				<button
+					type="button"
+					class:list={["hcarousel__dot", i === 0 && "is-active"]}
+					data-index={i}
+					data-testid={`carousel-dot-${i}`}
+					aria-label={`Go to slide ${i + 1}`}
+					role="tab"
+					aria-selected={i === 0 ? "true" : "false"}
+				>
+					<span class="hcarousel__dot-fill"></span>
+				</button>
+			))}
+		</div>
+	</section>
+)}
+
+<script>
+(function () {
+	const root = document.querySelector<HTMLElement>(".hcarousel");
+	if (!root) return;
+	const slides = root.querySelectorAll<HTMLElement>(".hcarousel__slide");
+	const dots = root.querySelectorAll<HTMLButtonElement>(".hcarousel__dot");
+	const arrows = root.querySelectorAll<HTMLButtonElement>(".hcarousel__arrow");
+	const autoplay = parseInt(root.dataset.autoplay || "6000", 10);
+	let current = 0;
+	let timer: number | undefined;
+	let paused = false;
+
+	function setActive(i: number) {
+		current = (i + slides.length) % slides.length;
+		slides.forEach((s, k) => s.classList.toggle("is-active", k === current));
+		dots.forEach((d, k) => {
+			d.classList.toggle("is-active", k === current);
+			d.setAttribute("aria-selected", k === current ? "true" : "false");
+		});
+	}
+
+	function next() { setActive(current + 1); }
+	function prev() { setActive(current - 1); }
+
+	function start() {
+		stop();
+		if (paused) return;
+		timer = window.setInterval(next, autoplay);
+	}
+	function stop() {
+		if (timer) { window.clearInterval(timer); timer = undefined; }
+	}
+
+	dots.forEach((d) => {
+		d.addEventListener("click", () => {
+			setActive(parseInt(d.dataset.index || "0", 10));
+			start();
+		});
+	});
+	arrows.forEach((a) => {
+		a.addEventListener("click", (e) => {
+			e.preventDefault();
+			const dir = parseInt(a.dataset.dir || "1", 10);
+			setActive(current + dir);
+			start();
+		});
+	});
+
+	root.addEventListener("mouseenter", () => { paused = true; stop(); });
+	root.addEventListener("mouseleave", () => { paused = false; start(); });
+	// Pause when off-screen / user in another tab
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) stop(); else start();
+	});
+
+	// Keyboard nav when focused
+	root.addEventListener("keydown", (e) => {
+		if ((e as KeyboardEvent).key === "ArrowLeft") { prev(); start(); }
+		if ((e as KeyboardEvent).key === "ArrowRight") { next(); start(); }
+	});
+
+	// Touch / swipe
+	let startX = 0;
+	root.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; }, { passive: true });
+	root.addEventListener("touchend", (e) => {
+		const dx = e.changedTouches[0].clientX - startX;
+		if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); start(); }
+	}, { passive: true });
+
+	start();
+
+	// Clicking the image area navigates to the slide's href
+	slides.forEach((slide) => {
+		const media = slide.querySelector<HTMLElement>(".hcarousel__media");
+		const href = slide.dataset.href;
+		if (media && href) {
+			media.addEventListener("click", () => { window.location.href = href; });
+		}
+	});
+})();
+</script>
+
+<style>
+	.hcarousel {
+		position: relative;
+		width: 100%;
+		height: clamp(380px, 60vh, 580px);
+		overflow: hidden;
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+		isolation: isolate;
+	}
+
+	.hcarousel__track {
+		position: absolute;
+		inset: 0;
+	}
+
+	.hcarousel__slide {
+		position: absolute;
+		inset: 0;
+		display: none;
+		opacity: 0;
+		text-decoration: none;
+		color: inherit;
+	}
+	.hcarousel__slide.is-active {
+		display: block;
+		opacity: 1;
+		animation: hcarousel-enter 900ms cubic-bezier(0.4, 0, 0.2, 1) both;
+		z-index: 1;
+	}
+	@keyframes hcarousel-enter {
+		from { opacity: 0; }
+		to   { opacity: 1; }
+	}
+
+	.hcarousel__media {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+	}
+	.hcarousel__media :global(img) {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		transform: scale(1);
+		transition: transform 7000ms linear;
+	}
+	.hcarousel__slide.is-active .hcarousel__media :global(img) {
+		transform: scale(1.08);
+	}
+
+	.hcarousel__scrim {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(
+				to top,
+				rgba(10, 12, 16, 0.92) 0%,
+				rgba(10, 12, 16, 0.72) 25%,
+				rgba(10, 12, 16, 0.35) 55%,
+				rgba(10, 12, 16, 0.05) 100%
+			);
+	}
+
+	.hcarousel__caption {
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+		color: #fff;
+		max-width: 900px;
+		z-index: 2;
+	}
+
+	.hcarousel__meta {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+		font-family: var(--font-ui);
+		font-size: 0.8125rem;
+		color: rgba(255, 255, 255, 0.75);
+	}
+	.hcarousel__date,
+	.hcarousel__read {
+		font-weight: 500;
+	}
+
+	.hcarousel__title {
+		font-family: var(--font-ui);
+		font-size: clamp(1.5rem, 3.5vw, 2.75rem);
+		font-weight: 800;
+		line-height: 1.1;
+		letter-spacing: -0.025em;
+		color: #fff;
+		margin-bottom: 0.85rem;
+		max-width: 22ch;
+		/* Enter animation */
+		transform: translateY(12px);
+		opacity: 0;
+		transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 200ms, opacity 900ms ease 200ms;
+	}
+	.hcarousel__slide.is-active .hcarousel__title {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	.hcarousel__excerpt {
+		font-family: var(--font-display);
+		font-size: clamp(1rem, 1.4vw, 1.1875rem);
+		line-height: 1.5;
+		color: rgba(255, 255, 255, 0.82);
+		max-width: 58ch;
+		margin-bottom: 1.5rem;
+		transform: translateY(12px);
+		opacity: 0;
+		transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 340ms, opacity 900ms ease 340ms;
+	}
+	.hcarousel__slide.is-active .hcarousel__excerpt {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	.hcarousel__cta {
+		display: inline-block;
+		font-family: var(--font-ui);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #fff;
+		text-decoration: none;
+		padding: 0.65rem 1.1rem;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(10px);
+		border-radius: var(--radius);
+		transform: translateY(12px);
+		opacity: 0;
+		transition:
+			transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 480ms,
+			opacity 900ms ease 480ms,
+			background 200ms ease,
+			border-color 200ms ease;
+	}
+	.hcarousel__slide.is-active .hcarousel__cta {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	.hcarousel__cta:hover {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: #fff;
+	}
+
+	/* Clickable whole-slide overlay for the image area */
+	.hcarousel__slide {
+		cursor: default;
+	}
+	.hcarousel__media {
+		cursor: pointer;
+	}
+	.hcarousel__title a,
+	.hcarousel__title-link {
+		color: inherit;
+		text-decoration: none;
+	}
+	.hcarousel__title a:hover {
+		color: var(--color-accent);
+	}
+
+	/* Arrows */
+	.hcarousel__arrow {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		backdrop-filter: blur(12px);
+		color: #fff;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: all 180ms ease;
+		z-index: 3;
+		opacity: 0.5;
+	}
+	.hcarousel__arrow:hover {
+		background: rgba(255, 255, 255, 0.18);
+		opacity: 1;
+		transform: translateY(-50%) scale(1.06);
+	}
+	.hcarousel__arrow--prev { left: 1.25rem; }
+	.hcarousel__arrow--next { right: 1.25rem; }
+
+	/* Dots (with progress fill) */
+	.hcarousel__dots {
+		position: absolute;
+		bottom: 1rem;
+		right: clamp(1.5rem, 5vw, 4rem);
+		display: flex;
+		gap: 0.5rem;
+		z-index: 3;
+	}
+	.hcarousel__dot {
+		position: relative;
+		width: 36px;
+		height: 3px;
+		background: rgba(255, 255, 255, 0.3);
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		overflow: hidden;
+		border-radius: 2px;
+		transition: background 200ms ease;
+	}
+	.hcarousel__dot:hover {
+		background: rgba(255, 255, 255, 0.5);
+	}
+	.hcarousel__dot-fill {
+		position: absolute;
+		left: 0; top: 0;
+		width: 0;
+		height: 100%;
+		background: #fff;
+	}
+	.hcarousel__dot.is-active {
+		background: rgba(255, 255, 255, 0.3);
+	}
+	.hcarousel__dot.is-active .hcarousel__dot-fill {
+		animation: hcarousel-fill var(--fill-duration, 6000ms) linear forwards;
+	}
+	@keyframes hcarousel-fill {
+		from { width: 0%; }
+		to   { width: 100%; }
+	}
+
+	@media (max-width: 640px) {
+		.hcarousel { height: 420px; border-radius: 0; margin-left: -1rem; margin-right: -1rem; width: calc(100% + 2rem); }
+		.hcarousel__caption { padding: 1.5rem 1.25rem 2.5rem; }
+		.hcarousel__arrow { display: none; }
+		.hcarousel__excerpt { display: none; }
+	}
+</style>

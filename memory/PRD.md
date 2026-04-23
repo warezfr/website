@@ -27,8 +27,9 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 ### Iterations
 1. v1 — Minimalist editorial theme (cream/teal) — rejected by user (too minimal)
 2. v2 — SmartMag-style dense news magazine homepage + branded Base
-3. v3 — **Article detail page rewritten in SmartMag style** (current) — fixes the
-   misaligned left/right columns reported by the user and adds editorial upgrades
+3. v3 — Article detail page rewritten in SmartMag style (fixes misaligned columns)
+4. v4 — **Current**: full-bleed hero image on articles (title below),
+   interactive animated carousel banner on homepage, complete About-page redesign
 
 ### Files created / modified
 - `templates/dynatrace-blog/package.json` — `@dynatrace-club/theme-blog`
@@ -39,7 +40,9 @@ layout with colored category badges, multi-section homepage, sidebar widgets).
 - `templates/dynatrace-blog/src/pages/index.astro` — magazine homepage (7 sections)
 - `templates/dynatrace-blog/src/components/CategoryBadge.astro` — colored category pill
 - `templates/dynatrace-blog/src/components/MagCard.astro` — card primitive (hero/stack/row/minimal)
-- `templates/dynatrace-blog/src/pages/posts/[slug].astro` — **fully rewritten** SmartMag article page (breadcrumbs, category badge, drop-cap, share rail, reading progress bar, new 2-col layout, redesigned sidebar + related posts)
+- `templates/dynatrace-blog/src/pages/posts/[slug].astro` — SmartMag article (breadcrumbs, badge, drop-cap, share rail, reading progress, 2-col, sidebar) + **full-bleed hero image with Ken Burns zoom** (v4)
+- `templates/dynatrace-blog/src/pages/pages/[slug].astro` — **About/page layout redesigned** with animated blob hero, stats strip, house-rules sidebar, topic grid, CTA (v4)
+- `templates/dynatrace-blog/src/components/HeroCarousel.astro` — **interactive fade carousel** (5 slides, Ken Burns zoom, arrows, dots with fill progress, autoplay + swipe + keyboard + pause on hover) (v4)
 - `templates/dynatrace-blog/seed/seed.json` — full custom seed (categories + 7 posts + pages + menus)
 
 ### Visual identity

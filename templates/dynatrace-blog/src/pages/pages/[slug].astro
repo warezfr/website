@@ -1,108 +1,648 @@
 ---
-import { getEmDashEntry, decodeSlug } from "emdash";
+import { getEmDashEntry, getEmDashCollection, decodeSlug } from "emdash";
 import { PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
 
 const slug = decodeSlug(Astro.params.slug);
-
-if (!slug) {
-	return Astro.redirect("/404");
-}
+if (!slug) return Astro.redirect("/404");
 
 const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
-
-if (!page) {
-	return Astro.redirect("/404");
-}
-
+if (!page) return Astro.redirect("/404");
 Astro.cache.set(cacheHint);
+
+// Fetch stats to show on the About page
+const { entries: allPosts } = await getEmDashCollection("posts");
+const publishedPosts = allPosts.filter((p) => p.data.publishedAt);
+
+const stats = {
+	articles: publishedPosts.length,
+	categories: 4,
+	launched: new Date(2026, 0, 1), // Jan 2026
+};
+
+const isAbout = slug === "about";
 ---
 
 <Base
 	title={page.data.title}
 	content={{ collection: "pages", id: page.data.id, slug }}
 >
-	<article class="page-article">
-		<header class="page-header">
-			<h1 class="page-title" {...page.edit.title}>{page.data.title}</h1>
-		</header>
+	{isAbout ? (
+		<>
+			{/* ============ ABOUT — EDITORIAL HERO ============ */}
+			<section class="page-hero" data-testid="about-hero">
+				<div class="page-hero__bg" aria-hidden="true">
+					<span class="bg-blob bg-blob--1"></span>
+					<span class="bg-blob bg-blob--2"></span>
+					<span class="bg-blob bg-blob--3"></span>
+					<span class="bg-grid"></span>
+				</div>
+				<div class="page-hero__inner">
+					<div class="page-hero__eyebrow">
+						<span class="pulse-dot" aria-hidden="true"></span>
+						<span>About the publication</span>
+					</div>
+					<h1 class="page-hero__title">
+						We write about the systems <em>we actually run</em>.
+					</h1>
+					<p class="page-hero__lede">
+						Dynatrace Club is an independent publication on observability, Dynatrace,
+						and applied AI — honest, opinionated, and never sponsored.
+					</p>
+				</div>
+			</section>
 
-		<div class="page-content">
-			<PortableText value={page.data.content} />
-		</div>
-	</article>
+			{/* ============ STATS STRIP ============ */}
+			<section class="page-stats" data-testid="about-stats">
+				<div class="page-stats__inner">
+					<div class="stat">
+						<span class="stat__value">{stats.articles}+</span>
+						<span class="stat__label">Articles</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">{stats.categories}</span>
+						<span class="stat__label">Focus areas</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">100%</span>
+						<span class="stat__label">Vendor-free</span>
+					</div>
+					<div class="stat">
+						<span class="stat__value">2026</span>
+						<span class="stat__label">Launched</span>
+					</div>
+				</div>
+			</section>
+
+			{/* ============ CONTENT + ASIDE ============ */}
+			<section class="page-body" data-testid="about-body">
+				<article class="page-content portable-text">
+					<PortableText value={page.data.content} />
+				</article>
+
+				<aside class="page-principles">
+					<h3 class="page-principles__title">House rules</h3>
+					<ul class="page-principles__list">
+						<li>
+							<span class="principle__num">01</span>
+							<div>
+								<strong>No vendor press releases.</strong>
+								If a product shows up here it's because we actually used it.
+							</div>
+						</li>
+						<li>
+							<span class="principle__num">02</span>
+							<div>
+								<strong>Numbers, not vibes.</strong>
+								Latency graphs, SLO burn rates, real configs. No "here's why X matters" think-pieces without data.
+							</div>
+						</li>
+						<li>
+							<span class="principle__num">03</span>
+							<div>
+								<strong>Corrections are a feature.</strong>
+								Every post is editable on GitHub. When we're wrong, we fix it in public.
+							</div>
+						</li>
+						<li>
+							<span class="principle__num">04</span>
+							<div>
+								<strong>Your attention isn't inventory.</strong>
+								No pop-ups, no interstitials, no tracking beyond what the CMS needs to work.
+							</div>
+						</li>
+					</ul>
+				</aside>
+			</section>
+
+			{/* ============ TOPICS GRID ============ */}
+			<section class="page-topics" data-testid="about-topics">
+				<header class="page-topics__header">
+					<span class="page-topics__eyebrow">What we cover</span>
+					<h2 class="page-topics__title">Four focus areas, one thread.</h2>
+				</header>
+				<div class="page-topics__grid">
+					<a href="/category/observability" class="topic-card" data-cat="observability">
+						<span class="topic-card__dot"></span>
+						<h3>Observability</h3>
+						<p>OpenTelemetry, distributed tracing, log pipelines, and what actually works when your span cardinality explodes.</p>
+						<span class="topic-card__cta">Read observability →</span>
+					</a>
+					<a href="/category/dynatrace" class="topic-card" data-cat="dynatrace">
+						<span class="topic-card__dot"></span>
+						<h3>Dynatrace</h3>
+						<p>Platform deep-dives, Smartscape patterns, DQL cheat-sheets, management zones, and Davis AI in production.</p>
+						<span class="topic-card__cta">Read Dynatrace →</span>
+					</a>
+					<a href="/category/ai" class="topic-card" data-cat="ai">
+						<span class="topic-card__dot"></span>
+						<h3>Applied AI</h3>
+						<p>LLM Ops, GenAI semantic conventions, token-cost telemetry, and RAG pipelines that don't fall over at scale.</p>
+						<span class="topic-card__cta">Read AI →</span>
+					</a>
+					<a href="/category/sre" class="topic-card" data-cat="sre">
+						<span class="topic-card__dot"></span>
+						<h3>SRE & Reliability</h3>
+						<p>SLOs, error budgets, burn rates, incident retros, and the unglamorous work that keeps production quiet.</p>
+						<span class="topic-card__cta">Read SRE →</span>
+					</a>
+				</div>
+			</section>
+
+			{/* ============ CTA ============ */}
+			<section class="page-cta" data-testid="about-cta">
+				<div class="page-cta__inner">
+					<h2>Want to contribute?</h2>
+					<p>
+						If you write about observability, Dynatrace or AI and don't want to host
+						a blog, pitch us. Guest essays are welcome — we keep editorial control,
+						you keep the byline.
+					</p>
+					<div class="page-cta__actions">
+						<a href="mailto:hello@dynatrace.club" class="btn btn--primary" data-testid="contact-btn">Pitch an article</a>
+						<a href="/posts" class="btn btn--ghost" data-testid="browse-btn">Browse the archive</a>
+					</div>
+				</div>
+			</section>
+		</>
+	) : (
+		/* ============ GENERIC PAGE FALLBACK ============ */
+		<article class="generic-page">
+			<header class="generic-page__header">
+				<h1 class="generic-page__title" {...page.edit.title}>{page.data.title}</h1>
+			</header>
+			<div class="generic-page__content portable-text">
+				<PortableText value={page.data.content} />
+			</div>
+		</article>
+	)}
 </Base>
 
 <style>
-	.page-article {
-		max-width: var(--max-width);
+	/* ============ ABOUT HERO ============ */
+	.page-hero {
+		position: relative;
+		overflow: hidden;
+		padding: 5rem 1.5rem 5rem;
+		background: var(--color-bg);
+	}
+
+	.page-hero__bg {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 0;
+	}
+	.bg-blob {
+		position: absolute;
+		border-radius: 50%;
+		filter: blur(80px);
+		opacity: 0.55;
+		animation: blob-float 18s ease-in-out infinite;
+	}
+	.bg-blob--1 {
+		width: 420px; height: 420px;
+		background: color-mix(in srgb, var(--cat-observability) 50%, transparent);
+		top: -80px; left: -60px;
+	}
+	.bg-blob--2 {
+		width: 380px; height: 380px;
+		background: color-mix(in srgb, var(--cat-dynatrace) 40%, transparent);
+		top: 40px; right: -100px;
+		animation-delay: -6s;
+	}
+	.bg-blob--3 {
+		width: 320px; height: 320px;
+		background: color-mix(in srgb, var(--cat-ai) 40%, transparent);
+		bottom: -120px; left: 40%;
+		animation-delay: -12s;
+	}
+	@keyframes blob-float {
+		0%, 100% { transform: translate(0, 0) scale(1); }
+		33% { transform: translate(30px, -20px) scale(1.05); }
+		66% { transform: translate(-20px, 30px) scale(0.95); }
+	}
+	.bg-grid {
+		position: absolute;
+		inset: 0;
+		background-image:
+			linear-gradient(to right, color-mix(in srgb, var(--color-text) 4%, transparent) 1px, transparent 1px),
+			linear-gradient(to bottom, color-mix(in srgb, var(--color-text) 4%, transparent) 1px, transparent 1px);
+		background-size: 80px 80px;
+		mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+	}
+
+	.page-hero__inner {
+		position: relative;
+		z-index: 1;
+		max-width: 900px;
 		margin: 0 auto;
-		padding: var(--spacing-16) var(--spacing-6) var(--spacing-16);
+		text-align: center;
 	}
 
-	.page-header {
-		margin-bottom: var(--spacing-8);
-	}
-
-	.page-title {
-		font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
+	.page-hero__eyebrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		font-family: var(--font-ui);
+		font-size: 0.75rem;
 		font-weight: 700;
-		line-height: var(--leading-tight);
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--color-accent);
+		margin-bottom: 1.25rem;
+		padding: 0.45rem 1rem;
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: 999px;
+	}
+	.pulse-dot {
+		width: 8px; height: 8px;
+		background: var(--color-accent);
+		border-radius: 50%;
+		box-shadow: 0 0 0 0 var(--color-accent-ring);
+		animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+	@keyframes pulse-ring {
+		0%, 100% { box-shadow: 0 0 0 0 var(--color-accent-ring); }
+		50% { box-shadow: 0 0 0 8px transparent; }
 	}
 
-	.page-content :global(p) {
-		margin-bottom: 1.5em;
+	.page-hero__title {
+		font-family: var(--font-ui);
+		font-size: clamp(2.25rem, 6vw, 4.5rem);
+		font-weight: 800;
+		line-height: 1.04;
+		letter-spacing: -0.028em;
+		color: var(--color-text);
+		margin-bottom: 1.25rem;
+	}
+	.page-hero__title em {
+		font-family: var(--font-display);
+		font-style: italic;
+		font-weight: 500;
+		color: var(--color-accent);
 	}
 
-	.page-content :global(h2) {
-		font-size: var(--font-size-2xl);
-		margin-top: 2em;
-		margin-bottom: 0.75em;
+	.page-hero__lede {
+		font-family: var(--font-display);
+		font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+		line-height: 1.55;
+		color: var(--color-text-secondary);
+		max-width: 680px;
+		margin: 0 auto;
 	}
 
-	.page-content :global(h3) {
-		font-size: var(--font-size-xl);
-		margin-top: 1.75em;
-		margin-bottom: 0.5em;
+	/* ============ STATS ============ */
+	.page-stats {
+		padding: 0 1.5rem;
 	}
-
-	.page-content :global(blockquote) {
-		margin: 1.5em 0;
-		padding-left: var(--spacing-6);
-		border-left: 3px solid var(--color-border);
+	.page-stats__inner {
+		max-width: 1040px;
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 0;
+		padding: 2rem 0;
+		border-top: 1px solid var(--color-border);
+		border-bottom: 1px solid var(--color-border);
+	}
+	.stat {
+		padding: 0.5rem 1.5rem;
+		text-align: center;
+		border-right: 1px solid var(--color-border);
+	}
+	.stat:last-child { border-right: none; }
+	.stat__value {
+		display: block;
+		font-family: var(--font-ui);
+		font-size: clamp(1.75rem, 3vw, 2.5rem);
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: var(--color-text);
+		line-height: 1;
+	}
+	.stat__label {
+		display: block;
+		margin-top: 0.4rem;
+		font-family: var(--font-ui);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
 		color: var(--color-muted);
 	}
 
-	.page-content :global(pre) {
-		margin: 1.5em 0;
-		padding: var(--spacing-4);
-		background: var(--color-surface);
-		border-radius: var(--radius);
-		overflow-x: auto;
-		font-family: var(--font-mono);
-		font-size: var(--font-size-sm);
+	/* ============ CONTENT + ASIDE ============ */
+	.page-body {
+		max-width: var(--wide-width);
+		margin: 0 auto;
+		padding: 4rem 1.5rem 3rem;
+		display: grid;
+		grid-template-columns: minmax(0, 680px) 340px;
+		gap: 3rem;
+		justify-content: center;
+	}
+	.page-content {
+		font-family: var(--font-display);
+		font-size: 1.1875rem;
+		line-height: 1.72;
+		color: var(--color-text);
+	}
+	.page-content :global(p) {
+		margin-bottom: 1.35em;
+	}
+	.page-content :global(p:first-of-type) {
+		font-size: 1.375rem;
+		line-height: 1.55;
+		color: var(--color-text);
+		font-weight: 500;
+	}
+	.page-content :global(p:first-of-type)::first-letter {
+		font-family: var(--font-display);
+		float: left;
+		font-size: 4.2rem;
+		line-height: 0.92;
+		font-weight: 700;
+		margin: 0.1em 0.6rem 0 -2px;
+		color: var(--color-accent);
 	}
 
-	.page-content :global(code) {
-		font-family: var(--font-mono);
-		font-size: 0.9em;
-		background: var(--color-surface);
-		padding: 0.15em 0.3em;
-		border-radius: var(--radius);
+	.page-principles {
+		position: sticky;
+		top: 90px;
+		height: max-content;
+		padding: 1.75rem;
+		background: var(--color-bg-subtle);
+		border: 1px solid var(--color-border-subtle);
+		border-radius: var(--radius-lg);
 	}
-
-	.page-content :global(pre code) {
-		background: none;
+	.page-principles__title {
+		font-family: var(--font-ui);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: var(--color-text);
+		margin-bottom: 1.25rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid var(--color-accent);
+		display: inline-block;
+	}
+	.page-principles__list {
+		list-style: none;
 		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+	.page-principles__list li {
+		display: flex;
+		gap: 0.75rem;
+		font-family: var(--font-ui);
+		font-size: 0.875rem;
+		line-height: 1.5;
+		color: var(--color-text-secondary);
+	}
+	.page-principles__list strong {
+		display: block;
+		color: var(--color-text);
+		font-weight: 700;
+		margin-bottom: 0.15rem;
+	}
+	.principle__num {
+		flex: 0 0 auto;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--color-accent);
+		letter-spacing: 0.04em;
+		padding-top: 0.1rem;
 	}
 
-	.page-content :global(ul),
-	.page-content :global(ol) {
-		margin-bottom: 1.5em;
-		padding-left: var(--spacing-5);
+	/* ============ TOPICS GRID ============ */
+	.page-topics {
+		max-width: var(--wide-width);
+		margin: 0 auto;
+		padding: 4rem 1.5rem;
+	}
+	.page-topics__header {
+		text-align: center;
+		margin-bottom: 3rem;
+	}
+	.page-topics__eyebrow {
+		display: inline-block;
+		font-family: var(--font-ui);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		color: var(--color-muted);
+		margin-bottom: 0.6rem;
+	}
+	.page-topics__title {
+		font-family: var(--font-ui);
+		font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		color: var(--color-text);
+		max-width: 620px;
+		margin: 0 auto;
 	}
 
-	.page-content :global(li) {
-		margin-bottom: 0.5em;
+	.page-topics__grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.25rem;
+	}
+	.topic-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		padding: 2rem 1.75rem;
+		background: var(--color-bg);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		text-decoration: none;
+		overflow: hidden;
+		transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.topic-card::before {
+		content: "";
+		position: absolute;
+		top: 0; left: 0; right: 0;
+		height: 4px;
+		background: var(--color-accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 350ms ease;
+	}
+	.topic-card[data-cat="observability"]::before { background: var(--cat-observability); }
+	.topic-card[data-cat="dynatrace"]::before { background: var(--cat-dynatrace); }
+	.topic-card[data-cat="ai"]::before { background: var(--cat-ai); }
+	.topic-card[data-cat="sre"]::before { background: var(--cat-sre); }
+
+	.topic-card:hover {
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-card-hover);
+		border-color: transparent;
+	}
+	.topic-card:hover::before { transform: scaleX(1); }
+
+	.topic-card__dot {
+		width: 12px; height: 12px;
+		border-radius: 50%;
+		background: var(--color-accent);
+		margin-bottom: 1rem;
+	}
+	.topic-card[data-cat="observability"] .topic-card__dot { background: var(--cat-observability); }
+	.topic-card[data-cat="dynatrace"] .topic-card__dot { background: var(--cat-dynatrace); }
+	.topic-card[data-cat="ai"] .topic-card__dot { background: var(--cat-ai); }
+	.topic-card[data-cat="sre"] .topic-card__dot { background: var(--cat-sre); }
+
+	.topic-card h3 {
+		font-family: var(--font-ui);
+		font-size: 1.5rem;
+		font-weight: 800;
+		color: var(--color-text);
+		letter-spacing: -0.018em;
+		margin-bottom: 0.65rem;
+	}
+	.topic-card p {
+		font-size: 0.9375rem;
+		line-height: 1.55;
+		color: var(--color-text-secondary);
+		margin-bottom: 1.25rem;
+		flex: 1;
+	}
+	.topic-card__cta {
+		font-family: var(--font-ui);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		color: var(--color-text);
+		transition: transform 200ms ease;
+	}
+	.topic-card:hover .topic-card__cta {
+		color: var(--color-accent);
+	}
+	.topic-card[data-cat="observability"]:hover .topic-card__cta { color: var(--cat-observability); }
+	.topic-card[data-cat="dynatrace"]:hover .topic-card__cta { color: var(--cat-dynatrace); }
+	.topic-card[data-cat="ai"]:hover .topic-card__cta { color: var(--cat-ai); }
+	.topic-card[data-cat="sre"]:hover .topic-card__cta { color: var(--cat-sre); }
+
+	/* ============ CTA ============ */
+	.page-cta {
+		margin: 2rem 1.5rem 4rem;
+		padding: 4rem 2rem;
+		background:
+			radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--cat-observability) 16%, transparent), transparent 45%),
+			radial-gradient(circle at 90% 80%, color-mix(in srgb, var(--cat-ai) 16%, transparent), transparent 45%),
+			var(--color-bg-subtle);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--color-border-subtle);
+		text-align: center;
+	}
+	.page-cta__inner {
+		max-width: 620px;
+		margin: 0 auto;
+	}
+	.page-cta h2 {
+		font-family: var(--font-ui);
+		font-size: clamp(1.75rem, 3vw, 2.5rem);
+		font-weight: 800;
+		letter-spacing: -0.022em;
+		margin-bottom: 1rem;
+	}
+	.page-cta p {
+		font-size: 1rem;
+		line-height: 1.55;
+		color: var(--color-text-secondary);
+		margin-bottom: 2rem;
+	}
+	.page-cta__actions {
+		display: flex;
+		justify-content: center;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+	.btn {
+		display: inline-block;
+		padding: 0.85rem 1.6rem;
+		font-family: var(--font-ui);
+		font-size: 0.8125rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		border-radius: var(--radius);
+		text-decoration: none;
+		transition: all 180ms ease;
+	}
+	.btn--primary {
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+	}
+	.btn--primary:hover {
+		background: var(--color-accent-hover);
+		transform: translateY(-1px);
+	}
+	.btn--ghost {
+		background: transparent;
+		color: var(--color-text);
+		border: 1px solid var(--color-border);
+	}
+	.btn--ghost:hover {
+		background: var(--color-text);
+		color: var(--color-bg);
+		border-color: var(--color-text);
+	}
+
+	/* ============ GENERIC PAGE FALLBACK ============ */
+	.generic-page {
+		max-width: 760px;
+		margin: 0 auto;
+		padding: 4rem 1.5rem;
+	}
+	.generic-page__title {
+		font-family: var(--font-ui);
+		font-size: clamp(2rem, 4vw, 3rem);
+		font-weight: 800;
+		letter-spacing: -0.024em;
+		margin-bottom: 2rem;
+	}
+	.generic-page__content {
+		font-family: var(--font-display);
+		font-size: 1.125rem;
+		line-height: 1.72;
+		color: var(--color-text);
+	}
+	.generic-page__content :global(p) {
+		margin-bottom: 1.35em;
+	}
+	.generic-page__content :global(h2) {
+		font-family: var(--font-ui);
+		margin-top: 2em;
+		margin-bottom: 0.6em;
+	}
+
+	/* ============ RESPONSIVE ============ */
+	@media (max-width: 900px) {
+		.page-body { grid-template-columns: 1fr; gap: 2rem; }
+		.page-principles { position: static; }
+		.page-stats__inner { grid-template-columns: repeat(2, 1fr); }
+		.stat:nth-child(2) { border-right: none; }
+		.stat:nth-child(1), .stat:nth-child(2) {
+			border-bottom: 1px solid var(--color-border);
+			padding-bottom: 1rem;
+			margin-bottom: 1rem;
+		}
+		.page-topics__grid { grid-template-columns: 1fr; }
+	}
+	@media (max-width: 560px) {
+		.page-hero { padding: 3rem 1rem; }
+		.page-body { padding: 2.5rem 1rem; }
+		.page-topics { padding: 2.5rem 1rem; }
+		.page-cta { padding: 2.5rem 1.25rem; margin: 1rem; }
 	}
 </style>

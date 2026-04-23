@@ -111,6 +111,16 @@ const encodedUrl = encodeURIComponent(shareUrl);
 		<div class="read-progress__bar" id="read-progress-bar"></div>
 	</div>
 
+	{/* ============ FULL-BLEED HERO IMAGE ============ */}
+	{post.data.featured_image && (
+		<figure class="post-fullbleed" {...post.edit.featured_image}>
+			<div class="post-fullbleed__img">
+				<Image image={post.data.featured_image} />
+			</div>
+			<div class="post-fullbleed__scrim" aria-hidden="true"></div>
+		</figure>
+	)}
+
 	{/* ============ ARTICLE HEADER ============ */}
 	<header class="post-header">
 		<div class="post-header__inner">
@@ -176,15 +186,6 @@ const encodedUrl = encodeURIComponent(shareUrl);
 			</div>
 		</div>
 	</header>
-
-	{/* ============ HERO IMAGE ============ */}
-	{post.data.featured_image && (
-		<figure class="post-hero" {...post.edit.featured_image}>
-			<div class="post-hero__inner">
-				<Image image={post.data.featured_image} />
-			</div>
-		</figure>
-	)}
 
 	{/* ============ TWO-COLUMN BODY ============ */}
 	<div class="post-body">
@@ -443,10 +444,54 @@ const encodedUrl = encodeURIComponent(shareUrl);
 		transition: width 80ms ease;
 	}
 
-	/* ========== POST HEADER ========== */
+	/* ========== FULL-BLEED HERO IMAGE ========== */
+	.post-fullbleed {
+		position: relative;
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-bottom: 0;
+		overflow: hidden;
+		background: var(--color-surface);
+		/* Parallax hook */
+		will-change: transform;
+	}
+	.post-fullbleed__img {
+		height: clamp(340px, 62vh, 720px);
+		width: 100%;
+		overflow: hidden;
+	}
+	.post-fullbleed__img :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transform: scale(1.02);
+		animation: fullbleed-zoom 14s ease-out forwards;
+	}
+	@keyframes fullbleed-zoom {
+		from { transform: scale(1.08); }
+		to   { transform: scale(1); }
+	}
+	.post-fullbleed__scrim {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(
+				to bottom,
+				transparent 0%,
+				transparent 55%,
+				color-mix(in srgb, var(--color-bg) 60%, transparent) 88%,
+				var(--color-bg) 100%
+			);
+		pointer-events: none;
+	}
+
+	/* ========== POST HEADER (after hero) ========== */
 	.post-header {
-		padding: 2.5rem 1.5rem 1.5rem;
+		padding: 2rem 1.5rem 1.5rem;
 		background: var(--color-bg);
+		position: relative;
+		z-index: 2;
+		margin-top: -4rem;
 	}
 	.post-header__inner {
 		max-width: 760px;
@@ -558,27 +603,11 @@ const encodedUrl = encodeURIComponent(shareUrl);
 	}
 	.post-byline__link:hover { color: var(--color-accent); }
 
-	/* ========== HERO IMAGE ========== */
-	.post-hero {
-		margin: 2rem auto 0;
-		padding: 0 1.5rem;
-		max-width: var(--wide-width);
-	}
-	.post-hero__inner {
-		overflow: hidden;
-		border-radius: var(--radius-lg);
-		background: var(--color-surface);
-		aspect-ratio: 16 / 9;
-	}
-	.post-hero__inner :global(img) {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
+	/* (post-hero fullbleed replaced the old framed hero) */
 
 	/* ========== TWO-COLUMN BODY ========== */
 	.post-body {
-		margin: 3rem auto 0;
+		margin: 2.5rem auto 0;
 		padding: 0 1.5rem;
 		max-width: var(--wide-width);
 		position: relative;
@@ -1126,12 +1155,11 @@ const encodedUrl = encodeURIComponent(shareUrl);
 	}
 
 	@media (max-width: 760px) {
-		.post-header { padding: 1.5rem 1rem 1rem; }
+		.post-fullbleed__img { height: 52vh; }
+		.post-header { padding: 1.5rem 1rem 1rem; margin-top: -2rem; }
 		.post-title { font-size: 2rem; }
 		.post-dek { font-size: 1.0625rem; }
 		.post-byline { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-		.post-hero { margin-top: 1rem; padding: 0 1rem; }
-		.post-hero__inner { aspect-ratio: 3 / 2; }
 		.post-body { padding: 0 1rem; margin-top: 2rem; }
 		.post-content :global(p:first-of-type)::first-letter {
 			font-size: 3rem;
